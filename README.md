@@ -1,5 +1,5 @@
 # wzry_ai
-人工智能模型玩王者荣耀
+人工智能模型玩王者荣耀。<br>本项目是开源项目，后面还会更新。欢迎大家多多支持。
 
 ## 1.环境配置教程
 + 1.使用anaconda创建一个环境 (conda create --name wzry_ai python=3.10)
