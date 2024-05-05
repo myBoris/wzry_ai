@@ -1,0 +1,6 @@
+opencv-python
+opencv-contrib-python
+scrcpy-client[ui]
+PyQt5
+win32gui
+pywin32
