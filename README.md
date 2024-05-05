@@ -23,4 +23,4 @@
 ## 4.其他
     qq群:687853827
     请开发者喝杯水
-![屏幕截图3.png](images%2F%C6%C1%C4%BB%BD%D8%CD%BC3.png)
+![屏幕截图3.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE3.png)
