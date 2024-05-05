@@ -16,9 +16,9 @@
 ## 3.在真机和模拟器上的配置<br>
 ### 真机和模拟器按键位置的修改<br>
 + #### 1.这个文件([androidController.py](androidController.py))的position就是坐标点，改这里会影响点击的位置.<br>
-       ![屏幕截图1.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE1.png)
+![屏幕截图1.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE1.png)
 + #### 如何获取点击的位置，我这里写了一个脚本，更改坐标后，运行一下，就知道点击的位置在哪.里面直接输入坐标实时更新还有问题，以后再修改，重新运行就行<br>
-       ![屏幕截图2.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE2.png)
+![屏幕截图2.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE2.png)
 
 
 ## 4.其他
