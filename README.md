@@ -10,8 +10,7 @@
 + + `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
 
 ## 2.使用教程<br>
-### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下
-### 以后直接更新这个模型文件即可
+#### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下，以后直接更新这个模型文件即可
 
 ## 3.在真机和模拟器上的配置<br>
 ### 真机和模拟器按键位置的修改<br>
