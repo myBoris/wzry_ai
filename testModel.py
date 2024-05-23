@@ -1,3 +1,4 @@
+import threading
 import time
 
 import cv2
@@ -27,6 +28,29 @@ def load_and_preprocess_image(image, model_input_size=(640, 640)):
 
     return image
 
+# 全局变量声明
+globalFrame = None
+lock = threading.Lock()
+
+def on_client_frame(frame):
+    global globalFrame
+    if frame is not None:
+        # 将帧数据转换为 OpenCV 格式
+        # np_frame = np.frombuffer(frame, np.uint8)
+        # img = cv2.imdecode(np_frame, cv2.IMREAD_ANYCOLOR)
+        # if frame is not None:
+        lock.acquire()
+        try:
+            globalFrame = frame
+            # print("图像解码成功!")
+        finally:
+            lock.release()
+
+    else:
+        # print('client frame is None')
+        # print("图像解码失败!")
+        pass
+
 def run_scrcpy():
     device_id = "528e7355"
     max_width = 1080
@@ -34,77 +58,11 @@ def run_scrcpy():
     bit_rate = 2000000000
 
     client = scrcpy.Client(device=device_id, max_width=max_width, max_fps=max_fps, bitrate=bit_rate)
+    client.add_listener(scrcpy.EVENT_FRAME, on_client_frame)
     client.start(threaded=True)
 
     return client
 
-def conver_model_result_to_action(output1, output2):
-    left_actions = {
-        '0': {'action_id': 'none', 'action_name': '无操作', 'type': 'none'},
-        '1': {'action_id': 'move', 'action_name': '移动', 'type': 'swipe'},
-        '2': {'action_id': 'buy_equipment_1', 'action_name': '购买装备1', 'type': 'click'},
-        '3': {'action_id': 'buy_equipment_2', 'action_name': '购买装备2', 'type': 'click'}
-    }
-
-    right_actions = {
-        '0': {'action_id': 'none', 'action_name': '无操作'},
-        '1': {'action_id': 'back_base', 'action_name': '回城'},
-        '2': {'action_id': 'restore_health', 'action_name': '恢复'},
-        '3': {'action_id': 'skill', 'action_name': '召唤师技能'},
-        '4': {'action_id': 'attack', 'action_name': '攻击'},
-        '5': {'action_id': 'attack_pawn', 'action_name': '攻击小兵'},
-        '6': {'action_id': 'attack_tower', 'action_name': '攻击塔'},
-        '7': {'action_id': 'attention_1', 'action_name': '发起进攻'},
-        '8': {'action_id': 'attention_2', 'action_name': '开始撤退'},
-        '9': {'action_id': 'attention_3', 'action_name': '请求集合'},
-        '10': {'action_id': 'skill_1', 'action_name': '1技能'},
-        '11': {'action_id': 'skill_2', 'action_name': '2技能'},
-        '12': {'action_id': 'skill_3', 'action_name': '3技能'},
-        '13': {'action_id': 'skill_4', 'action_name': '4技能'},
-        '14': {'action_id': 'add_skill_1', 'action_name': '升级1技能'},
-        '15': {'action_id': 'add_skill_2', 'action_name': '升级2技能'},
-        '16': {'action_id': 'add_skill_3', 'action_name': '升级3技能'},
-        '17': {'action_id': 'add_skill_4', 'action_name': '升级4技能'},
-        '18': {'action_id': 'skill_equipment', 'action_name': '装备技能'}
-    }
-
-    skill_actions = {
-        '0': {'action_id': 'click', 'action_name': '点击'},
-        '1': {'action_id': 'swipe', 'action_name': '滑动'},
-        '2': {'action_id': 'long_press', 'action_name': '长按'}
-    }
-
-    # 解包输出
-    action1_logits, angle1_logits = output1
-
-    # 左手的操作
-    # 获取最可能的action和type
-    action1 = torch.argmax(action1_logits, dim=1)  # 得到0-4之间的整数
-    angle1 = torch.argmax(angle1_logits, dim=1)  # 得到0-359之间的整数
-
-    # 右手的操作
-    action2_logits, type2_logits, angle2_logits, duration2 = output2
-
-    # 获取最可能的action和type
-    action2 = torch.argmax(action2_logits, dim=1)  # 得到0-18之间的整数
-    type2 = torch.argmax(type2_logits, dim=1)  # 得到0-3之间的整数
-    angle2 = torch.argmax(angle2_logits, dim=1)  # 得到0-359之间的整数
-
-    actions = [
-        {
-            'action': left_actions[str(action1.item())]['action_id'],
-            'type': left_actions[str(action1.item())]['type'],
-            'angle': int(angle1)
-        },
-        {
-            'action': right_actions[str(action2.item())]['action_id'],
-            'type': skill_actions[str(type2.item())]['action_id'],
-            'angle': int(angle2),
-            'duration': int(duration2)
-        }
-    ]
-
-    return actions
 
 
 
@@ -115,20 +73,29 @@ if __name__ == "__main__":
 
     try:
         # 模型
-        # model = torch.load('src/wzry_ai.pt')
+        model = WzryNet()
+        model.load_state_dict(torch.load("src/wzry_ai.pt"), strict=False)
+        model.eval()  # 设置为评估模式
 
         # model = WzryNet()
         # model.eval()  # 设置为评估模式
+        image = None
 
         while(True):
             # 记录开始时间
             start_time = time.time()
 
-            # 测试，不应该放这里，要放外面
-            model = WzryNet()
-            model.eval()  # 设置为评估模式
+            lock.acquire()
+            try:
+                if globalFrame is not None:
+                    image = globalFrame
+            finally:
+                lock.release()
 
-            image = methodutil.screenshot("wzry_ai")
+            if image is None:
+                print('client frame is None')
+                time.sleep(0.1)
+                continue
             processed_image = load_and_preprocess_image(image, model_input_size=(640, 640))
 
             # 记录并打印这一步骤的时间
@@ -136,19 +103,19 @@ if __name__ == "__main__":
             print(f"第一步运行时间: {step1_time - start_time:.3f} 秒")
 
             with torch.no_grad():
-                output1, output2 = model(processed_image)
+                action = model(processed_image)
                 # 记录并打印这一步骤的时间
                 step2_time = time.time()
                 print(f"第二步运行时间: {step2_time - step1_time:.3f} 秒")
 
-                actions = conver_model_result_to_action(output1, output2)
+                actions = methodutil.conver_model_result_to_action(action)
                 # 记录并打印这一步骤的时间
                 step3_time = time.time()
                 print(f"第三步运行时间: {step3_time - step2_time:.3f} 秒")
                 print(actions)
 
             controller.execute_actions(actions)
-            # time.sleep(1)  # 保持程序运行以观察效果
+            time.sleep(0.5)  # 保持程序运行以观察效果
             # 打印总运行时间
             total_time = time.time() - start_time
             print(f"总运行时间: {total_time:.3f} 秒")

@@ -80,7 +80,7 @@ class AndroidController:
                         self.client.control.swipe(int(pos[0]), int(pos[1]), int(end_pos[0]), int(end_pos[1]), 0.5)
                     elif action['type'] == 'long_press':
                         self.client.control.touch(int(pos[0]), int(pos[1]), scrcpy.ACTION_DOWN)
-                        time.sleep(int(action.get('duration', 1)))  # 长按时间
+                        time.sleep(float(action.get('duration', 1)))  # 长按时间
                         self.client.control.touch(int(pos[0]), int(pos[1]), scrcpy.ACTION_UP)
                     elif action['type'] == 'click':
                         self.client.control.touch(int(pos[0]), int(pos[1]), scrcpy.ACTION_DOWN)
