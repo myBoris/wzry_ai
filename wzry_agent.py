@@ -15,6 +15,8 @@ class Agent:
     def __init__(self, action_size=747, gamma=0.99, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, lr=0.001,
                  batch_size=4, memory_size=10000, target_update=10, load_model=False):
 
+        torch.backends.cudnn.enabled = False
+
         self.action_size = action_size
         self.gamma = gamma
         self.epsilon = epsilon
@@ -70,10 +72,15 @@ class Agent:
                     target = reward + self.gamma * torch.max(target_action).to(self.device)
 
             predicted_action = self.model(state)
+
+            if target.dim() == 1:
+                target = target.expand_as(predicted_action)
+
             loss = F.mse_loss(predicted_action, target)
+            dqn_loss = torch.mean(loss)
 
             self.optimizer.zero_grad()
-            loss.backward()
+            dqn_loss.backward()
             self.optimizer.step()
 
         if self.epsilon > self.epsilon_min:
