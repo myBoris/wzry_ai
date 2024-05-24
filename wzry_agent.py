@@ -66,10 +66,10 @@ class Agent:
             done = torch.FloatTensor([done]).to(self.device)
 
             target = reward
-            if not done:
+            if not done.item():
                 with torch.no_grad():
                     target_action = self.target_model(next_state)
-                    target = reward + self.gamma * torch.max(target_action).to(self.device)
+                    target = reward + self.gamma * torch.max(target_action)
 
             predicted_action = self.model(state)
 
@@ -86,7 +86,7 @@ class Agent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-        self.target_update_count = self.target_update_count + 1
+        self.target_update_count += 1
         if self.target_update_count == self.target_update:
             self.target_update_count = 0
             self.update_target_model()
@@ -94,7 +94,7 @@ class Agent:
 
     def load(self, name):
         if os.path.exists(name):
-            self.model.load_state_dict(torch.load(name))
+            self.model.load_state_dict(torch.load(name, map_location=self.device), strict=False)
             print(f"Loaded model from {name}")
         else:
             print(f"No model found at {name}. Starting training from scratch.")

@@ -109,9 +109,14 @@ while True:
         finally:
             lock.release()
 
+        if next_state is None:
+            print('client frame is None')
+            time.sleep(0.01)
+            continue
+
         reward, done, info = env.get_reword(next_state)
 
-        print("get reword", reward, done, info)
+        # print("get reword", reward, done, info)
 
         # 对局未开始
         if done == -1:

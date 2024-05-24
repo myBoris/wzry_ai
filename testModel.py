@@ -17,7 +17,7 @@ def load_and_preprocess_image(image, model_input_size=(640, 640)):
     # images = cv2.cvtColor(images, cv2.COLOR_BGR2RGB)
 
     # 缩放图片到指定大小（仿照YOLO的方式，这里使用双线性插值）
-    image = cv2.resize(image, model_input_size, interpolation=cv2.INTER_LINEAR)
+    # image = cv2.resize(image, model_input_size, interpolation=cv2.INTER_LINEAR)
 
     # 将数据类型转换为float32并归一化像素值
     image = image.astype('float32') / 255.0

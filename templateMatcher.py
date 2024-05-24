@@ -7,9 +7,8 @@ import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class TemplateMatcher:
-    def __init__(self, threshold=0.8, use_cuda=False):
+    def __init__(self, threshold=0.8):
         self.threshold = threshold
-        self.use_cuda = use_cuda
         self.template_paths = {
             'successes_0': 'templateImages/template_success0.jpg',
             'successes_1': 'templateImages/template_success1.jpg',
@@ -39,44 +38,12 @@ class TemplateMatcher:
         return templates
 
     def _match_template(self, image_data, template):
-        if self.use_cuda:
-            # print(cv2.cuda.getCudaEnabledDeviceCount())
-            # Ensure OpenCV CUDA is available
-            if not cv2.cuda.getCudaEnabledDeviceCount():
-                raise Exception("CUDA device not found")
 
-            # Initialize CUDA device
-            cv2.cuda.setDevice(0)
+        # 灰度转换
+        image_data_gray = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
 
-            # Upload the image data to the GPU
-            image_data_gpu = cv2.cuda_GpuMat()
-            image_data_gpu.upload(image_data)
-
-            # Convert the image to grayscale on the GPU
-            image_data_gray_gpu = cv2.cuda.cvtColor(image_data_gpu, cv2.COLOR_BGR2GRAY)
-
-            # Upload the template to the GPU
-            template_resized_gpu = cv2.cuda_GpuMat()
-            template_resized_gpu.upload(template)
-
-            # Create a result matrix on the GPU
-            result_gpu = cv2.cuda_GpuMat()
-
-            # Create a template matching object and perform template matching
-            template_matching = cv2.cuda.createTemplateMatching(image_data_gray_gpu.type(), cv2.TM_CCOEFF_NORMED)
-            template_matching.match(image_data_gray_gpu, template_resized_gpu, result_gpu)
-
-            # Download the result from the GPU
-            result = result_gpu.download()
-            if result is None:
-                return 0.0
-
-        else:
-            # 灰度转换
-            image_data_gray = cv2.cvtColor(image_data, cv2.COLOR_BGR2GRAY)
-
-            # 执行模板匹配
-            result = cv2.matchTemplate(image_data_gray, template, cv2.TM_CCOEFF_NORMED)
+        # 执行模板匹配
+        result = cv2.matchTemplate(image_data_gray, template, cv2.TM_CCOEFF_NORMED)
 
         # 找到结果中匹配度大于等于阈值的部分
         match_locations = np.where(result >= self.threshold)
