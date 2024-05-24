@@ -7,20 +7,19 @@ import scrcpy
 
 from androidController import AndroidController
 from getReword import GetRewordUtil
+from globalInfo import GlobalInfo
 from methodutil import count_parameters
+from templateMatcher import TemplateMatcher
 from wzry_agent import Agent
 
 from wzry_env import Environment
 
-EPOCHS = 100
-
-window_name = "wzry_ai"
-
 agent = Agent(load_model=True)
-
 # 打印模型的参数数量
 count_parameters(agent.model)
-rewordUtil = GetRewordUtil()
+
+templateMatcher = TemplateMatcher(threshold=0.8)
+rewordUtil = GetRewordUtil(templateMatcher)
 
 lock = threading.Lock()
 # 全局变量声明
@@ -29,22 +28,11 @@ globalFrame = None
 
 def on_client_frame(frame):
     global globalFrame
-    if frame is not None:
-        # 将帧数据转换为 OpenCV 格式
-        # np_frame = np.frombuffer(frame, np.uint8)
-        # img = cv2.imdecode(np_frame, cv2.IMREAD_ANYCOLOR)
-        # if frame is not None:
-        lock.acquire()
-        try:
-            globalFrame = frame
-            # print("图像解码成功!")
-        finally:
-            lock.release()
-
-    else:
-        # print('client frame is None')
-        # print("图像解码失败!")
-        pass
+    lock.acquire()
+    try:
+        globalFrame = frame
+    finally:
+        lock.release()
 
 
 def run_scrcpy():
@@ -61,93 +49,80 @@ def run_scrcpy():
 
 
 controller = AndroidController(run_scrcpy())
-env = Environment(window_name, controller, rewordUtil)
+env = Environment(controller, rewordUtil)
 
 return_list = []
 epoch = 0
 state = None
 next_state = None
-while True:
-    done = -1
-    episode_return = 0
-    # state = screenshot(window_name)
 
+# 全局状态
+globalInfo = GlobalInfo()
+
+while True:
+    # 获取当前的图像
     lock.acquire()
     try:
-        if globalFrame is not None:
-            state = globalFrame
-            next_state = globalFrame
+        state = globalFrame
     finally:
         lock.release()
-
+    # 保证图像能正常获取
     if state is None:
-        print('client frame is None')
-        time.sleep(0.1)
-        continue
-    if next_state is None:
-        print('client frame is None')
         time.sleep(0.1)
         continue
 
-    start_log = 0
-    # isDone ===-1 对局未开始
-    # isDone ===0 对局开始
-    # isDone ===1 对局结束
-    while done == -1 or done == 0:
-        print('client frame ok')
+    # 初始化对局状态 对局未开始
+    globalInfo.set_game_end()
+    # 判断对局是否开始
+    checkGameStart = templateMatcher.match(state)
+    if checkGameStart == 'started':
+        print("-------------------------------对局开始-----------------------------------")
+        globalInfo.set_game_start()
 
-        action = agent.act(state)
+        # 这一局的总回报
+        epoch_return_total = 0
+        # 对局开始了，进行训练
+        while globalInfo.is_start_game():
+            print("checkGameStart", globalInfo.is_start_game())
+            # 获取预测动作
+            action = agent.act(state)
+            # 执行动作
+            env.step(action)
 
-        # print("action", action)
-
-        env.step(action)
-
-        lock.acquire()
-        try:
-            if globalFrame is not None:
+            lock.acquire()
+            try:
                 next_state = globalFrame
-        finally:
-            lock.release()
+            finally:
+                lock.release()
 
-        if next_state is None:
-            print('client frame is None')
-            time.sleep(0.01)
-            continue
+            if next_state is None:
+                time.sleep(0.01)
+                continue
 
-        reward, done, info = env.get_reword(next_state)
+            reward, done, info = env.get_reword(next_state)
 
-        # print("get reword", reward, done, info)
+            # 对局结束
+            if done == 2:
+                print("-------------------------------对局结束-----------------------------------")
+                globalInfo.set_game_end()
+                print(f"Episode: {epoch}, Reward total: {epoch_return_total},  Time: {time}, Epsilon: {agent.epsilon}")
+                break
 
-        # 对局未开始
-        if done == -1:
-            print("对局未开始")
-            continue
+            # 追加经验
+            agent.remember(state, action, reward, next_state, done)
 
-        if start_log == 0:
-            print("对局开始")
-            start_log = start_log + 1
+            state = next_state
 
-        # 追加经验
-        agent.remember(state, action, reward, next_state, done)
+            epoch_return_total += reward
 
-        state = next_state
+            agent.replay(epoch)
 
-        episode_return += reward
+        # 保存每一局结束的reword
+        return_list.append(epoch_return_total)
+        # 计算前n个元素的平均值
+        average = np.mean(return_list[:epoch])
+        print("average reword", average)
+        epoch = epoch + 1
 
-        # 对局开始
-        if done == 1:
-            print(f"Episode: {epoch}/{EPOCHS}, Reward: {episode_return},  Time: {time}, Epsilon: {agent.epsilon}")
-            break
-
-        agent.replay(epoch)
-
-    print("对局结束")
-    # 保存每一局结束的reword
-    return_list.append(episode_return)
-    # 计算前n个元素的平均值
-    average = np.mean(return_list[:epoch])
-    print("average reword", average)
-
-    epoch = epoch + 1
-
-    # agent.save(f"src/model_episode_{epoch}.pt")
+    else:
+        print("对局未开始")

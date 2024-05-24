@@ -15,7 +15,7 @@ from templateMatcher import TemplateMatcher
 
 
 class GetRewordUtil():
-    def __init__(self):
+    def __init__(self, templateMatcher=TemplateMatcher(threshold=0.8)):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = resnet34(num_classes=12).to(self.device)
         self.load_model("resNet34_13.pth")
@@ -46,7 +46,7 @@ class GetRewordUtil():
 
         json_file = open(json_path, "r")
         self.class_indict = json.load(json_file)
-        self.matcher = TemplateMatcher(threshold=0.8)
+        self.matcher = templateMatcher
 
     def load_model(self, model_path):
         # model = torch.hub.load(r"yolov9-main", 'custom', path=model_path, force_reload=True, source='local')
@@ -215,9 +215,9 @@ class GetRewordUtil():
             rewordCount = self.CATEGORIES[class_name]()
 
         if class_name == 'successes' or class_name == 'failed':
-            done = 1
+            done = 2
         elif class_name == 'started' or class_name in self.CATEGORIES:
-            done = 0
+            done = 1
         else:
             done = 0
 

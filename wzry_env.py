@@ -2,8 +2,7 @@ from methodutil import  conver_model_result_to_action
 
 
 class Environment():
-    def __init__(self, window_name, android_controller, rewordUtil):
-        self.window_name = window_name
+    def __init__(self, android_controller, rewordUtil):
         self.android_controller = android_controller
         self.rewordUtil = rewordUtil
 

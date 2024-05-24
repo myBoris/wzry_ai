@@ -31,10 +31,10 @@ class GlobalInfo:
         if start_game is None:
             return False
         else:
-            return True
+            return start_game
 
     def set_game_end(self):
-        self.set_value('start_game', True)
+        self.set_value('start_game', False)
 
     def set_start_time(self, key):
         self.set_value(key, datetime.datetime.now())
