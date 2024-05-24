@@ -70,12 +70,12 @@ def conver_model_result_to_action(action):
 
     # 左手的操作
     # 获取最可能的action和type
-    action1 = torch.argmax(action1_logits, dim=1)  # 得到0-3之间的整数
+    action1 = torch.argmax(action1_logits, dim=1)  # 得到0-2之间的整数
     angle1 = torch.argmax(angle1_logits, dim=1)  # 得到0-359之间的整数
 
     # 右手的操作
     # 获取最可能的action和type
-    action2 = torch.argmax(action2_logits, dim=1)  # 得到0-18之间的整数
+    action2 = torch.argmax(action2_logits, dim=1)  # 得到0-20之间的整数
     type2 = torch.argmax(type2_logits, dim=1)  # 得到0-2之间的整数
     angle2 = torch.argmax(angle2_logits, dim=1)  # 得到0-359之间的整数
     duration2 = F.relu(duration2_logits)

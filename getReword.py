@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -8,6 +9,8 @@ import numpy as np
 import torch
 from PIL import Image
 
+from globalInfo import GlobalInfo
+from methodutil import split_actions
 from statusModel import resnet34
 from torchvision import transforms
 
@@ -19,28 +22,8 @@ class GetRewordUtil():
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = resnet34(num_classes=12).to(self.device)
         self.load_model("resNet34_13.pth")
-        # 结合类别名称与行为
-        self.CATEGORIES = {
-            "beforeStart": self.handle_beforeStart,
-            "started": self.handle_started,
-            "finish": self.handle_finish,
-            "successes": self.handle_successes,
-            "failed": self.handle_failed,
-            "readInfo": self.handle_readInfo,
-            "death": self.handle_death,
-            "backHome": self.handle_backHome,
-            "killHero": self.handle_killHero,
-            "attackSmallDragon": self.handle_attackSmallDragon,
-            "attackBigDragon": self.handle_attackBigDragon,
-            "attackEnemyCreeps": self.handle_attackEnemyCreeps,
-            "protectedOurSideCreeps": self.handle_protectedOurSideCreeps,
-            "attackEnemyMonster": self.handle_attackEnemyMonster,
-            "attackOurSideMonster": self.handle_attackOurSideMonster,
-            "attackEnemyTower": self.handle_attackEnemyTower,
-            "protectedOurSideTower": self.handle_protectedOurSideTower,
-            "damageByTower": self.handle_damageByTower
-        }
 
+        # 模板匹配
         json_path = 'class_indices.json'
         assert os.path.exists(json_path), "file: '{}' dose not exist.".format(json_path)
 
@@ -48,37 +31,22 @@ class GetRewordUtil():
         self.class_indict = json.load(json_file)
         self.matcher = templateMatcher
 
+        # 全局状态
+        self.globalInfo = GlobalInfo()
+
     def load_model(self, model_path):
-        # model = torch.hub.load(r"yolov9-main", 'custom', path=model_path, force_reload=True, source='local')
         self.model.load_state_dict(torch.load(model_path))
         self.model.to(self.device)
 
-    def predict(self, model, img):
-        results = model(img)
-        max_conf = 0
-        best_detection = None
-        for detection in results.xyxy[0]:
-            x1, y1, x2, y2, conf, class_id = detection.cpu().numpy()
-            if conf > max_conf:
-                max_conf = conf
-                best_detection = detection
-
-        if best_detection is not None:
-            x1, y1, x2, y2, conf, class_id = best_detection.cpu().numpy()
-            # print(f"Best Detection -> ID: {int(class_id)}, Name: {list(self.CATEGORIES.keys())[int(class_id)]}, Conf: {conf:.2f}, Box: ({int(x1)}, {int(y1)}, {int(x2)}, {int(y2)})")
-            return int(class_id), list(self.CATEGORIES.keys())[int(class_id)]
-        else:
-            # print(f"Best Detection -> ID: -1, Name: not found")
-            return -1, "not found"
-    def predict2(self, img):
+    def predict(self, img):
 
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
 
         data_transform = transforms.Compose([transforms.Resize(640),  # 验证过程图像预处理有变动，将原图片的长宽比固定不动，将其最小边长缩放到256
-                                   transforms.CenterCrop(640),  # 再使用中心裁剪裁剪一个640×640大小的图片
-                                   transforms.ToTensor(),
-                                   transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+                                             transforms.CenterCrop(640),  # 再使用中心裁剪裁剪一个640×640大小的图片
+                                             transforms.ToTensor(),
+                                             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
         img = data_transform(img)
         # expand batch dimension
@@ -98,86 +66,132 @@ class GetRewordUtil():
 
         return self.class_indict[str(predict_cla)]
 
+    def calculate_reword(self, status_name):
+        rewordResult = 0
+        gamePassTime = self.globalInfo.get_game_time_pass()
 
+        if status_name == "readInfo":
+            rewordResult = 0
+        elif status_name == "killHero":
+            rewordResult = random.choice([1, -1])
+        elif status_name == "attackSmallDragon":
+            # 2分钟
+            if gamePassTime > 120:
+                rewordResult = 0.01
+            # 5分钟
+            elif gamePassTime > 300:
+                rewordResult = 0.1
+            # 10分钟
+            elif gamePassTime > 600:
+                rewordResult = 0.2
+            # 20分钟
+            elif gamePassTime > 1200:
+                rewordResult = 0.05
+            # 30分钟
+            elif gamePassTime > 1800:
+                rewordResult = -0.1
+            else:
+                rewordResult = 0
+        elif status_name == "attackBigDragon":
+            # 2分钟
+            if gamePassTime > 120:
+                rewordResult = 0.01
+            # 5分钟
+            elif gamePassTime > 300:
+                rewordResult = 0.1
+            # 10分钟
+            elif gamePassTime > 600:
+                rewordResult = 0.2
+            # 20分钟
+            elif gamePassTime > 1200:
+                rewordResult = 0.05
+            # 30分钟
+            elif gamePassTime > 1800:
+                rewordResult = -0.1
+            else:
+                rewordResult = 0
+        elif status_name == "attackEnemyCreeps":
+            # 10分钟
+            if gamePassTime > 600:
+                rewordResult = 1
+            # 20分钟
+            elif gamePassTime > 1200:
+                rewordResult = 0.5
+            else:
+                rewordResult = 2
 
-    # Define action functions
-    # 攻击小兵
-    def handle_beforeStart(self):
-        return 0
+        elif status_name == "protectedOurSideCreeps":
+            rewordResult = 0
+        elif status_name == "attackEnemyMonster":
+            # 10分钟
+            if gamePassTime > 600:
+                rewordResult = 0.8
+            # 20分钟
+            elif gamePassTime > 1200:
+                rewordResult = 0.5
+            # 25分钟
+            elif gamePassTime > 1500:
+                rewordResult = -0.5
+            # 30分钟
+            elif gamePassTime > 1800:
+                rewordResult = -1
+            else:
+                rewordResult = 1
+        elif status_name == "attackOurSideMonster":
+            # 10分钟
+            if gamePassTime > 600:
+                rewordResult = 0.1
+            # 20分钟
+            elif gamePassTime > 1200:
+                rewordResult = 0.5
+            else:
+                rewordResult = 1
+        elif status_name == "attackEnemyTower":
+            # 5分钟
+            if gamePassTime > 300:
+                rewordResult = 0.1
+            # 10分钟
+            elif gamePassTime > 600:
+                rewordResult = 0.5
+            # 20分钟
+            elif gamePassTime > 1200:
+                rewordResult = 1
+            else:
+                rewordResult = 0
+        elif status_name == "protectedOurSideTower":
+            rewordResult = 0
+        elif status_name == "damageByTower":
+            rewordResult = -0.5
+        elif status_name == "successes":
+            rewordResult = 10000
+        elif status_name == "failed":
+            rewordResult = -10000
+        elif status_name == "death":
+            rewordResult = -0.5
 
-    # 攻击小龙
-    def handle_started(self):
-        return 0
+        if self.globalInfo.is_back_home():
+            action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(self.globalInfo.get_value("action"))
 
-    # 攻击大龙
-    def handle_finish(self):
-        return 0
+            # 左手的操作
+            # 获取最可能的action
+            action1 = torch.argmax(action1_logits, dim=1)  # 得到0-3之间的整数
 
-    # 击杀英雄
-    def handle_successes(self):
-        return 1000
+            # 右手的操作
+            # 获取最可能的action
+            action2 = torch.argmax(action2_logits, dim=1)  # 得到0-20之间的整数
 
-    # 攻击敌方野怪
-    def handle_failed(self):
-        return -1000
+            if action1 != 0 and action2 != 0 and action2 != 0:
+                rewordResult = -1
+            else:
+                rewordResult = 0
+        else:
+            if status_name == "backHome":
+                rewordResult = 0
+                self.globalInfo.set_back_home_time()
 
-    # 攻击己方野怪
-    def handle_readInfo(self):
-        return 0
-
-    # 攻击塔
-    def handle_death(self):
-        return -0.1
-
-    # 回城
-    def handle_backHome(self):
-        return 0
-
-    # 被塔攻击
-    def handle_killHero(self):
-        return -0.5
-
-    # 死亡
-    def handle_attackSmallDragon(self):
-        return 0.01
-
-    # 查看信息
-    def handle_attackBigDragon(self):
-        return 0.01
-
-    # 成功
-    def handle_attackEnemyCreeps(self):
-        return 0.01
-
-    # 失败
-    def handle_protectedOurSideCreeps(self):
-        return 0.1
-
-    # 开始
-    def handle_attackEnemyMonster(self):
-        return 0.01
-
-    # 结束
-    def handle_attackOurSideMonster(self):
-        return 0.1
-
-        # 结束
-
-    def handle_attackEnemyTower(self):
-        return 0.1
-
-    def handle_protectedOurSideTower(self):
-        return 0.1
-
-    def handle_damageByTower(self):
-        return -0.2
-
-    def getModelStatus(self, image):
-        class_name = self.predict2(image)
-        return class_name
+        return rewordResult
 
     def get_reword(self, image_path, isFrame):
-
         if isFrame:
             image = image_path
         else:
@@ -190,9 +204,9 @@ class GetRewordUtil():
             start_time_class_name = time.time()
             start_time_md_class_name = time.time()
 
-            # 提交任务
+            # 提交任务,预测状态
             future_class_name = executor.submit(self.matcher.match, image)
-            future_md_class_name = executor.submit(self.getModelStatus, image)
+            future_md_class_name = executor.submit(self.predict, image)
 
             # 等待所有任务完成
             for future in as_completed([future_class_name, future_md_class_name]):
@@ -209,16 +223,15 @@ class GetRewordUtil():
             if not class_name:
                 class_name = md_class_name
 
+        # 计算回报
+        rewordCount = self.calculate_reword(class_name)
 
-        rewordCount = 0
-        if class_name in self.CATEGORIES:
-            rewordCount = self.CATEGORIES[class_name]()
-
+        # 判断对局是否结束
         if class_name == 'successes' or class_name == 'failed':
-            done = 2
-        elif class_name == 'started' or class_name in self.CATEGORIES:
+            # 结束
             done = 1
         else:
+            # 未结束
             done = 0
 
         return rewordCount, done, class_name

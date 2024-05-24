@@ -78,6 +78,7 @@ while True:
     if checkGameStart == 'started':
         print("-------------------------------对局开始-----------------------------------")
         globalInfo.set_game_start()
+        globalInfo.set_start_game_time()
 
         # 这一局的总回报
         epoch_return_total = 0
@@ -86,6 +87,7 @@ while True:
             print("checkGameStart", globalInfo.is_start_game())
             # 获取预测动作
             action = agent.act(state)
+            globalInfo.set_value("action", action)
             # 执行动作
             env.step(action)
 
@@ -102,7 +104,7 @@ while True:
             reward, done, info = env.get_reword(next_state)
 
             # 对局结束
-            if done == 2:
+            if done == 1:
                 print("-------------------------------对局结束-----------------------------------")
                 globalInfo.set_game_end()
                 print(f"Episode: {epoch}, Reward total: {epoch_return_total},  Time: {time}, Epsilon: {agent.epsilon}")

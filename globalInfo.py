@@ -23,6 +23,7 @@ class GlobalInfo:
     def get_value(self, key):
         return self._info.get(key, None)
 
+    # -------------------------------对局状态-------------------------------------
     def set_game_start(self):
         self.set_value('start_game', True)
 
@@ -36,34 +37,41 @@ class GlobalInfo:
     def set_game_end(self):
         self.set_value('start_game', False)
 
-    def set_start_time(self, key):
-        self.set_value(key, datetime.datetime.now())
+    # -------------------------------对局时间-------------------------------------
+    def set_start_game_time(self):
+        self.set_value('game_time', datetime.datetime.now())
 
-    def has_time_elapsed(self, key, seconds):
-        start_time = self.get_value(key)
-        if start_time is None:
-            raise ValueError(f"Start time for {key} has not been initialized.")
+    def get_game_time_pass(self):
+        game_time = self.get_value('back_home')
+        if game_time is None:
+            return 0
 
         current_time = datetime.datetime.now()
-        elapsed_time = (current_time - start_time).total_seconds()
-        return elapsed_time > seconds
+        elapsed_time = (current_time - game_time).total_seconds()
+        return elapsed_time
 
+    # -------------------------------回城状态-------------------------------------
+    def set_back_home_time(self):
+        self.set_value('back_home', datetime.datetime.now())
 
-# 使用示例
-if __name__ == "__main__":
-    g1 = GlobalInfo()
+    def is_back_home(self):
+        back_home = self.get_value('back_home')
+        if back_home is None:
+            return False
+        else:
+            return True
 
-    # 初始化时间
-    g1.set_start_time('start_time_key')
+    def is_back_home_over(self):
+        back_home = self.get_value('back_home')
+        if back_home is None:
+            return True
 
-    # 等待几秒钟后检查是否超过指定的秒数
-    import time
+        current_time = datetime.datetime.now()
+        elapsed_time = (current_time - back_home).total_seconds()
 
-    time.sleep(3)  # 等待3秒
+        if elapsed_time > 8:
+            self.set_value('back_home', None)
+            return True
+        else:
+            return False
 
-    print(g1.has_time_elapsed('start_time_key', 2))  # 输出: True, 因为等待了3秒，超过了2秒
-    print(g1.has_time_elapsed('start_time_key', 5))  # 输出: False, 因为等待了3秒，未超过5秒
-
-    # 验证单例
-    g2 = GlobalInfo()
-    print(g1 is g2)  # 输出: True，证明g1和g2是同一个实例
