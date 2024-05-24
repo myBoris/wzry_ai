@@ -74,7 +74,7 @@ while True:
     # 初始化对局状态 对局未开始
     globalInfo.set_game_end()
     # 判断对局是否开始
-    checkGameStart = templateMatcher.match(state)
+    checkGameStart = templateMatcher.match_start(state)
     if checkGameStart == 'started':
         print("-------------------------------对局开始-----------------------------------")
         globalInfo.set_game_start()

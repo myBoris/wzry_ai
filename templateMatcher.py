@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 class TemplateMatcher:
     def __init__(self, threshold=0.8):
         self.threshold = threshold
@@ -19,16 +20,20 @@ class TemplateMatcher:
             'failed_2': 'templateImages/template_failure2.jpg',
             'death_0': 'templateImages/template_death0.jpg',
             'death_1': 'templateImages/template_death1.jpg',
-            'death_2': 'templateImages/template_death2.jpg',
+            'death_2': 'templateImages/template_death2.jpg'
+        }
+
+        self.start_template_paths = {
             'started_red': 'templateImages/template_start_red.jpg',
             'started_blue': 'templateImages/template_start_blue.jpg',
             'started_blue2': 'templateImages/template_start_blue2.jpg'
         }
-        self.templates = self._load_templates()
+        self.templates = self._load_templates(self.template_paths)
+        self.start_templates = self._load_templates(self.start_template_paths)
 
-    def _load_templates(self):
+    def _load_templates(self, template_list):
         templates = {}
-        for template_type, template_path in self.template_paths.items():
+        for template_type, template_path in template_list.items():
             template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
             # template = cv2.resize(template, (template.shape[1], template.shape[0]))
             if template is not None:
@@ -55,7 +60,6 @@ class TemplateMatcher:
         match_ratio = match_count / total_possible_matches
         return match_ratio
 
-
     def match(self, image_data: np.ndarray) -> str:
         best_match_type = None
         best_match_ratio = 0
@@ -65,6 +69,28 @@ class TemplateMatcher:
             futures = {
                 executor.submit(self._match_template, image_data, template): template_type
                 for template_type, template in self.templates.items()
+            }
+
+            # 等待所有线程完成
+            for future in as_completed(futures):
+                match_ratio = future.result()
+                template_type = futures[future]
+                # 更新最佳匹配
+                if match_ratio > best_match_ratio:
+                    best_match_ratio = match_ratio
+                    best_match_type = template_type.split("_")[0]
+
+        return best_match_type
+
+    def match_start(self, image_data: np.ndarray) -> str:
+        best_match_type = None
+        best_match_ratio = 0
+
+        # 使用 ThreadPoolExecutor 进行并行处理
+        with ThreadPoolExecutor() as executor:
+            futures = {
+                executor.submit(self._match_template, image_data, template): template_type
+                for template_type, template in self.start_templates.items()
             }
 
             # 等待所有线程完成
@@ -91,17 +117,18 @@ def find_images(folder_path):
         image_files.extend(glob.glob(os.path.join(folder_path, extension)))
 
     return image_files
+
+
 # 使用示例
 if __name__ == "__main__":
     # 创建模板匹配器对象
     matcher = TemplateMatcher(threshold=0.8)
 
-
     # 查找文件夹中的所有图片
-    images = find_images("H:\\AI\\work\\wzry_status\\srcImages\\01_started")
+    # images = find_images("H:\\AI\\work\\wzry_status\\srcImages\\01_started")
     # images = find_images("H:\\AI\\work\\wzry_status\\srcImages\\03_successes")
     # images = find_images("H:\\AI\\work\\wzry_status\\srcImages\\04_failed")
-    # images = find_images("H:\\AI\\work\\wzry_status\\srcImages\\06_death")
+    images = find_images("H:\\AI\\work\\wzry_status\\srcImages\\06_death")
     # 遍历每个图片并调用 template_match 方法
     for image_path in images:
         # 读取图像数据
