@@ -41,30 +41,32 @@ class GetRewordUtil():
     def predict(self, img):
 
         if isinstance(img, np.ndarray):
-            img = Image.fromarray(img)
+            imgArr = Image.fromarray(img)
 
         data_transform = transforms.Compose([transforms.Resize(640),  # 验证过程图像预处理有变动，将原图片的长宽比固定不动，将其最小边长缩放到256
                                              transforms.CenterCrop(640),  # 再使用中心裁剪裁剪一个640×640大小的图片
                                              transforms.ToTensor(),
                                              transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-        img = data_transform(img)
+        imgArr = data_transform(imgArr)
         # expand batch dimension
-        img = torch.unsqueeze(img, dim=0)
+        imgArr = torch.unsqueeze(imgArr, dim=0)
 
         # prediction
         self.model.eval()  # 使用eval模式
         with torch.no_grad():  # 不对损失梯度进行跟踪
             # predict class
-            output = torch.squeeze(self.model(img.to(self.device))).cpu()
+            output = torch.squeeze(self.model(imgArr.to(self.device))).cpu()
             predict = torch.softmax(output, dim=0)
             predict_cla = torch.argmax(predict).numpy()
 
         print_res = "class: {}   prob: {:.3}".format(self.class_indict[str(predict_cla)],
                                                      predict[predict_cla].numpy())
         # print(print_res)
-
-        return self.class_indict[str(predict_cla)]
+        res = self.class_indict[str(predict_cla)]
+        if res == "backHome":
+            res = None
+        return res
 
     def calculate_reword(self, status_name):
         rewordResult = 0
@@ -77,61 +79,61 @@ class GetRewordUtil():
         elif status_name == "attackSmallDragon":
             # 2分钟
             if gamePassTime > 120:
-                rewordResult = 0.01
+                rewordResult = 1
             # 5分钟
             elif gamePassTime > 300:
-                rewordResult = 0.1
+                rewordResult = 2
             # 10分钟
             elif gamePassTime > 600:
-                rewordResult = 0.2
+                rewordResult = 3
             # 20分钟
             elif gamePassTime > 1200:
-                rewordResult = 0.05
+                rewordResult = 0
             # 30分钟
             elif gamePassTime > 1800:
-                rewordResult = -0.1
+                rewordResult = -1
             else:
-                rewordResult = 0
+                rewordResult = -2
         elif status_name == "attackBigDragon":
             # 2分钟
             if gamePassTime > 120:
-                rewordResult = 0.01
+                rewordResult = 1
             # 5分钟
             elif gamePassTime > 300:
-                rewordResult = 0.1
+                rewordResult = 2
             # 10分钟
             elif gamePassTime > 600:
-                rewordResult = 0.2
+                rewordResult = 3
             # 20分钟
             elif gamePassTime > 1200:
-                rewordResult = 0.05
+                rewordResult = 0
             # 30分钟
             elif gamePassTime > 1800:
-                rewordResult = -0.1
+                rewordResult = -1
             else:
-                rewordResult = 0
+                rewordResult = -10
         elif status_name == "attackEnemyCreeps":
             # 10分钟
             if gamePassTime > 600:
-                rewordResult = 1
+                rewordResult = 2
             # 20分钟
             elif gamePassTime > 1200:
-                rewordResult = 0.5
+                rewordResult = 1
             else:
-                rewordResult = 2
+                rewordResult = 3
 
         elif status_name == "protectedOurSideCreeps":
-            rewordResult = 0
+            rewordResult = -2
         elif status_name == "attackEnemyMonster":
             # 10分钟
             if gamePassTime > 600:
-                rewordResult = 0.8
+                rewordResult = 2
             # 20分钟
             elif gamePassTime > 1200:
-                rewordResult = 0.5
+                rewordResult = 1
             # 25分钟
             elif gamePassTime > 1500:
-                rewordResult = -0.5
+                rewordResult = -1
             # 30分钟
             elif gamePassTime > 1800:
                 rewordResult = -1
@@ -140,36 +142,36 @@ class GetRewordUtil():
         elif status_name == "attackOurSideMonster":
             # 10分钟
             if gamePassTime > 600:
-                rewordResult = 0.1
+                rewordResult = 2
             # 20分钟
             elif gamePassTime > 1200:
-                rewordResult = 0.5
+                rewordResult = 1
             else:
                 rewordResult = 1
         elif status_name == "attackEnemyTower":
             # 5分钟
             if gamePassTime > 300:
-                rewordResult = 0.1
+                rewordResult = 2
             # 10分钟
             elif gamePassTime > 600:
-                rewordResult = 0.5
+                rewordResult = 1
             # 20分钟
             elif gamePassTime > 1200:
                 rewordResult = 1
             else:
                 rewordResult = 0
         elif status_name == "protectedOurSideTower":
-            rewordResult = 0
+            rewordResult = -2
         elif status_name == "damageByTower":
-            rewordResult = -0.5
+            rewordResult = -1
         elif status_name == "successes":
             rewordResult = 10000
         elif status_name == "failed":
             rewordResult = -10000
         elif status_name == "death":
-            rewordResult = -0.5
+            rewordResult = -1
 
-        if self.globalInfo.is_back_home():
+        if self.globalInfo.is_back_home_over():
             action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(self.globalInfo.get_value("action"))
 
             # 左手的操作
@@ -213,11 +215,11 @@ class GetRewordUtil():
                 end_time = time.time()
                 if future == future_class_name:
                     class_name = future.result()
-                    print(f"tp运行时间: {end_time - start_time_class_name:.3f} 秒")
+                    # print(f"tp运行时间: {end_time - start_time_class_name:.3f} 秒")
 
                 elif future == future_md_class_name:
                     md_class_name = future.result()
-                    print(f"md运行时间: {end_time - start_time_md_class_name:.3f} 秒")
+                    # print(f"md运行时间: {end_time - start_time_md_class_name:.3f} 秒")
 
             # 如果 class_name 未定义，则使用 md_class_name
             if not class_name:

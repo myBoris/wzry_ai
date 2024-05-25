@@ -3,3 +3,4 @@ scrcpy-client[ui]
 PyQt5
 win32gui
 pywin32
+keyboard

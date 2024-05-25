@@ -7,7 +7,6 @@ import torch
 import torch.nn.functional as F
 from torch import optim
 
-from methodutil import load_and_preprocess_image
 from model import WzryNet
 
 
@@ -48,7 +47,6 @@ class Agent:
         if np.random.rand() <= self.epsilon:
             # 返回随机动作
             return torch.randn(1, self.action_size).to(self.device)
-        state = load_and_preprocess_image(state).to(self.device)
         with torch.no_grad():
             action = self.model(state)
         return action
@@ -60,8 +58,6 @@ class Agent:
         minibatch = random.sample(self.memory, self.batch_size)
 
         for state, action, reward, next_state, done in minibatch:
-            state = load_and_preprocess_image(state).to(self.device)
-            next_state = load_and_preprocess_image(next_state).to(self.device)
             reward = torch.FloatTensor([reward]).to(self.device)
             done = torch.FloatTensor([done]).to(self.device)
 

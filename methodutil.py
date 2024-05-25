@@ -47,24 +47,6 @@ skill_actions = {
     '2': {'action_id': 'long_press', 'action_name': '长按'}
 }
 
-def load_and_preprocess_image(image, model_input_size=(640, 640)):
-
-    # 将图片从BGR转换为RGB
-    # images = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    # 缩放图片到指定大小（仿照YOLO的方式，这里使用双线性插值）
-    # image = cv2.resize(image, model_input_size, interpolation=cv2.INTER_LINEAR)
-
-    # 将数据类型转换为float32并归一化像素值
-    image = image.astype('float32') / 255.0
-
-    # 转换为torch张量，并添加一个batch维度
-    image = transforms.ToTensor()(image)
-    image = image.unsqueeze(0)  # 增加batch维度，因为模型期望批处理输入
-
-    return image
-
-
 def conver_model_result_to_action(action):
     action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(action)
 
@@ -94,7 +76,7 @@ def conver_model_result_to_action(action):
         }
     ]
 
-    print("action", actions)
+    # print("action", actions)
 
     return actions
 

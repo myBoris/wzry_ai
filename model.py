@@ -1,3 +1,5 @@
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -17,7 +19,31 @@ class WzryNet(nn.Module):
         self.fc_output = None
         self.output_size = 747  # 输出维度
 
+        # 初始化卷积层的权重
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+
     def forward(self, x):
+        if isinstance(x, np.ndarray):
+            x = torch.from_numpy(x).float()
+
+        # 确保输入形状正确，如果是单张图片（3D 张量），则增加一个批次维度
+        if len(x.shape) == 3:
+            x = x.unsqueeze(0)
+
+        # 调整维度顺序以匹配期望的输入形状 [batch_size, channels, height, width]
+        x = x.permute(0, 3, 1, 2)
+
+        # 移动输入到与模型相同的设备
+        device = next(self.parameters()).device
+        x = x.to(device)
+
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         # x = F.relu(self.conv3(x))
