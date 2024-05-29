@@ -26,12 +26,12 @@
     qq交流群:687853827
 
 ## 5.广告
-+ [特惠活动
++ [【腾讯云】特惠活动
 1 元开启 GPU 炼丹之旅
 澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693) <br><br>
 
 + [【腾讯云】2核2G4M云服务器新老同享99元/年，续费同价](https://cloud.tencent.com/act/cps/redirect?redirect=5990&cps_key=11812351d85cc069a0941ce4c8d07693&from=console)
 
-
++ [【阿里云】云服务器 精选特惠，老用户升级最低享6.5折，协助您选择最合适配置方案。](https://www.aliyun.com/product/ecs?userCode=cgwj31jh)
 
 
