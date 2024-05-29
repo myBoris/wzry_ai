@@ -2,6 +2,7 @@ import os
 import random
 from collections import deque
 
+import cv2
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -12,7 +13,7 @@ from model import WzryNet
 
 class Agent:
     def __init__(self, action_size=747, gamma=0.99, epsilon=1.0, epsilon_min=0.1, epsilon_decay=0.995, lr=0.001,
-                 batch_size=4, memory_size=10000, target_update=10, load_model=False):
+                 batch_size=4, memory_size=10000, target_update=10, train_model_path="src/wzry_ai.pt"):
 
         torch.backends.cudnn.enabled = False
 
@@ -26,14 +27,15 @@ class Agent:
         self.memory = deque(maxlen=memory_size)
         self.target_update = target_update
         self.target_update_count = 0
+        self.train_model_path=train_model_path
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.model = WzryNet().to(self.device)
         self.target_model = WzryNet().to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
-        if load_model:
-            self.load("../src/wzry_ai.pt")
+        if os.path.exists(train_model_path):
+            self.load(train_model_path)
 
         self.update_target_model()
 
@@ -48,10 +50,18 @@ class Agent:
             # 返回随机动作
             return torch.randn(1, self.action_size).to(self.device)
         with torch.no_grad():
-            action = self.model(state)
+            tmp_state_640_640 = self.preprocess_image(state)
+            action = self.model(tmp_state_640_640)
         return action
 
-    def replay(self, epoch):
+    def preprocess_image(self, image, target_size=(640, 640)):
+        # 调整图像大小
+        resized_image = cv2.resize(image, target_size)
+        # 转换为张量并调整维度顺序 [height, width, channels] -> [channels, height, width]
+        tensor_image = torch.from_numpy(resized_image).float().permute(2, 0, 1)
+        return tensor_image.to(self.device).unsqueeze(0)
+
+    def replay(self):
         if len(self.memory) < self.batch_size:
             return
 
@@ -64,10 +74,12 @@ class Agent:
             target = reward
             if not done.item():
                 with torch.no_grad():
-                    target_action = self.target_model(next_state)
+                    tmp_next_state_640_640 = self.preprocess_image(next_state)
+                    target_action = self.target_model(tmp_next_state_640_640)
                     target = reward + self.gamma * torch.max(target_action)
 
-            predicted_action = self.model(state)
+            tmp_state_640_640 = self.preprocess_image(state)
+            predicted_action = self.model(tmp_state_640_640)
 
             if target.dim() == 1:
                 target = target.expand_as(predicted_action)
@@ -86,11 +98,11 @@ class Agent:
         if self.target_update_count == self.target_update:
             self.target_update_count = 0
             self.update_target_model()
-            self.save(f"src/model_episode_{epoch}.pt")
+            self.save(self.train_model_path)
 
     def load(self, name):
         if os.path.exists(name):
-            self.model.load_state_dict(torch.load(name, map_location=self.device), strict=False)
+            self.model.load_state_dict(torch.load(name, map_location=self.device), strict=True)
             print(f"Loaded model from {name}")
         else:
             print(f"No model found at {name}. Starting training from scratch.")

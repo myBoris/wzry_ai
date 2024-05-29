@@ -64,7 +64,12 @@ def run_scrcpy():
     return client
 
 
-
+def preprocess_image(image, target_size=(640, 640), device='cpu'):
+    # 调整图像大小
+    resized_image = cv2.resize(image, target_size)
+    # 转换为张量并调整维度顺序 [height, width, channels] -> [channels, height, width]
+    tensor_image = torch.from_numpy(resized_image).float().permute(2, 0, 1)
+    return tensor_image.to(device).unsqueeze(0)
 
 # 使用示例
 if __name__ == "__main__":
@@ -74,7 +79,7 @@ if __name__ == "__main__":
     try:
         # 模型
         model = WzryNet()
-        model.load_state_dict(torch.load("src/wzry_ai.pt"), strict=False)
+        model.load_state_dict(torch.load("src/wzry_ai.pt"), strict=True)
         model.eval()  # 设置为评估模式
 
         # model = WzryNet()
@@ -96,7 +101,8 @@ if __name__ == "__main__":
                 print('client frame is None')
                 time.sleep(0.1)
                 continue
-            processed_image = load_and_preprocess_image(image, model_input_size=(640, 640))
+            # processed_image = load_and_preprocess_image(image, model_input_size=(640, 640))
+            processed_image = preprocess_image(image)
 
             # 记录并打印这一步骤的时间
             step1_time = time.time()

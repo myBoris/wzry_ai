@@ -21,7 +21,7 @@ listener.start()
 # 全局状态
 globalInfo = GlobalInfo()
 
-agent = Agent(load_model=True)
+agent = Agent()
 # 打印模型的参数数量
 count_parameters(agent.model)
 
@@ -133,7 +133,7 @@ while True:
 
             epoch_return_total += reward
 
-            agent.replay(epoch)
+            agent.replay()
 
         # 保存每一局结束的reword
         return_list.append(epoch_return_total)
