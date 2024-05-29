@@ -24,5 +24,3 @@
 
 ## 4.其他
     qq交流群:687853827
-    (攒钱买显卡，给英伟达打工，打工人的卑微)
-![屏幕截图3.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE3.png)
