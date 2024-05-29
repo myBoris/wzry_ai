@@ -10,6 +10,7 @@
 + + `pip install -r requirements.txt`
 + + 这是pytorch和cuda的安装
 + + `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
++ 3.[Umi-OCR安装](https://github.com/hiroi-sora/Umi-OCR) 
 
 ## 2.使用教程<br>
 #### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下，以后直接更新这个模型文件即可

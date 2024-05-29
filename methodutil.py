@@ -1,12 +1,16 @@
+import base64
 import glob
+import json
 import os
 import sys
 import time
 
 import cv2
 import numpy as np
+import requests
 import torch
 import win32gui
+from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QApplication
 import torchvision.transforms as transforms
 import torch.nn.functional as F
@@ -46,6 +50,187 @@ skill_actions = {
     '1': {'action_id': 'swipe', 'action_name': '滑动'},
     '2': {'action_id': 'long_press', 'action_name': '长按'}
 }
+
+def screenshot_window(window_name):
+    """
+    截取指定窗口的内容并返回图像数据。
+
+    参数:
+    window_name (str): 窗口标题的部分或全部字符串。
+
+    返回:
+    np.ndarray: 截图的图像数据，如果窗口未找到则返回 None。
+    """
+    try:
+        # 获取窗口句柄
+        handle = win32gui.FindWindow(None, window_name)
+        if handle == 0:
+            raise Exception(f"窗口 '{window_name}' 未找到。")
+
+        # 初始化 QApplication
+        app = QApplication(sys.argv)
+        screen = QApplication.primaryScreen()
+
+        # 截取指定窗口的内容
+        img = screen.grabWindow(handle).toImage()
+
+        # 将 QImage 转换为 numpy 数组
+        img = img.convertToFormat(QImage.Format.Format_RGB32)
+        width = img.width()
+        height = img.height()
+        ptr = img.bits()
+        ptr.setsize(height * width * 4)
+        arr = np.array(ptr).reshape(height, width, 4)
+        arr = cv2.cvtColor(arr, cv2.COLOR_BGRA2BGR)
+
+        return arr
+    except Exception as e:
+        print(e)
+        return None
+
+def ocr_read(img, map):
+    # 确保图像是连续的
+    # img = np.ascontiguousarray(img)
+    # 将图片转换为 jpg 格式的字节数据
+    if img is None or img.size == 0:
+        return None
+
+    success, encoded_image = cv2.imencode('.jpg', img)
+    if not success:
+        print("Image encoding failed.")
+        return None
+
+    # 使用 base64 编码字节数据
+    base64_encoded_image = base64.b64encode(encoded_image)
+    # 将编码后的数据转换为 UTF-8 格式的字符串
+    base64_string = base64_encoded_image.decode('utf-8')
+
+    url = "http://127.0.0.1:1224/api/ocr"
+    data = {
+        "base64": base64_string,
+        # 可选参数
+        # Paddle引擎模式
+        # "options": {
+        #     "ocr.language": "models/config_chinese.txt",
+        #     "ocr.cls": False,
+        #     "ocr.limit_side_len": 960,
+        #     "tbpu.parser": "multi_para",
+        #     "data.format": "text",
+        # }
+        # Rapid引擎模式
+        # "options": {
+        #     "ocr.language": "简体中文",
+        #     "ocr.angle": False,
+        #     "ocr.maxSideLen": 1024,
+        #     "tbpu.parser": "multi_para",
+        #     "data.format": "text",
+        # }
+    }
+    headers = {"Content-Type": "application/json"}
+    data_str = json.dumps(data)
+
+    response = requests.post(url, data=data_str, headers=headers)
+    if response.status_code == 200:
+        res_dict = json.loads(response.text)
+        # print("返回值字典\n", res_dict)
+
+        if isinstance(res_dict['data'], list):
+            for item in res_dict['data']:
+                for key, value in map.items():
+                    if any(char in key for char in item['text']):
+                        return value
+    return None
+def get_cropped_img(img, class_name):
+    # 获取图像的高度和宽度
+    image_height, image_width = img.shape[:2]
+
+    # 结束
+    if class_name == '胜利结束' or class_name == '失败结束':
+        # 截取矩形的固定宽度和高度
+        width = image_width * 0.3
+        height = image_height * 0.14
+
+        # 计算中心顶部矩形的起始点
+        left = (image_width - width) / 2
+        top = 0  # 从顶部开始
+        right = left + width
+        bottom = top + height
+
+        # 根据计算出的坐标裁剪图像
+        cropped_img = img[int(top):int(bottom), int(left):int(right)]
+        return cropped_img
+
+    # 成功或者失败
+    elif class_name == '胜利' or class_name == '失败':
+        # 截取矩形的固定宽度和高度
+        width = image_width * 0.3
+        height = image_height * 0.3
+
+        # 计算中心矩形的起始点
+        left = (image_width - width) / 2
+        top = (image_height - height) / 2
+        right = left + width
+        bottom = top + height
+
+        # 根据计算出的坐标裁剪图像
+        cropped_img = img[int(top):int(bottom), int(left):int(right)]
+        return cropped_img
+    # 开始游戏
+    elif class_name == '0123456789':
+        # 截取矩形的固定宽度和高度
+        width = image_width * 0.08
+        height = image_height * 0.12
+
+        # 计算中心矩形的起始点
+        left = image_width * 0.04
+        top = image_height * 0.36
+        right = left + width
+        bottom = top + height
+
+        # 根据计算出的坐标裁剪图像
+        cropped_img = img[int(top):int(bottom), int(left):int(right)]
+        return cropped_img
+    # 回城
+    elif class_name == '回城':
+        # 截取矩形的固定宽度和高度
+        width = image_width * 0.3
+        height = image_height * 0.2
+
+        # 计算中心矩形的起始点
+        left = image_width * 0.35
+        top = image_height * 0.62
+        right = left + width
+        bottom = top + height
+
+        # 根据计算出的坐标裁剪图像
+        cropped_img = img[int(top):int(bottom), int(left):int(right)]
+        return cropped_img
+    else:
+        return img
+
+def ocr_read_status(img):
+    maps = [
+        {"胜利": "successes", "胜利结束": "successes"},
+        {"失败": "failed", "失败结束": "failed"},
+        {"回城": "backHome"}
+    ]
+
+    # 遍历每个字典并进行测试
+    for i, map in enumerate(maps):
+        for key, value in map.items():
+            cut_img = get_cropped_img(img, key)
+            result = ocr_read(cut_img, map)
+
+            if result is not None:
+                return result
+    return None
+
+def ocr_check_start(img):
+    cut_img = get_cropped_img(img, "0123456789")
+    map = {"0123456789": "started"}
+    result = ocr_read(cut_img, map)
+    return result
+
 
 def conver_model_result_to_action(action):
     action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(action)

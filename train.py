@@ -9,7 +9,7 @@ from androidController import AndroidController
 from getReword import GetRewordUtil
 from globalInfo import GlobalInfo
 from keyBoardListener import KeyboardListener
-from methodutil import count_parameters
+from methodutil import count_parameters, screenshot_window, ocr_check_start
 from templateMatcher import TemplateMatcher
 from wzry_agent import Agent
 
@@ -30,25 +30,25 @@ rewordUtil = GetRewordUtil(templateMatcher)
 
 lock = threading.Lock()
 # 全局变量声明
-globalFrame = None
-
+# globalFrame = None
+window_title = "CPH2309"
 
 globalInfo.set_value("count", 0)
-def on_client_frame(frame):
-    global globalFrame
-    lock.acquire()
-    try:
-        globalFrame = frame
-    finally:
-        lock.release()
-
-    if frame is not None:
-        recordImgFlg = globalInfo.get_value("recordImg")
-        if recordImgFlg is not None and recordImgFlg:
-            count = globalInfo.get_value("count")
-            cv2.imwrite(f"tmp/img_{count}.jpg", frame)
-            count = count+1
-            globalInfo.set_value("count", count)
+# def on_client_frame(frame):
+#     global globalFrame
+#     lock.acquire()
+#     try:
+#         globalFrame = frame
+#     finally:
+#         lock.release()
+#
+#     if frame is not None:
+#         recordImgFlg = globalInfo.get_value("recordImg")
+#         if recordImgFlg is not None and recordImgFlg:
+#             count = globalInfo.get_value("count")
+#             cv2.imwrite(f"tmp/img_{count}.jpg", frame)
+#             count = count+1
+#             globalInfo.set_value("count", count)
 
 
 def run_scrcpy():
@@ -58,7 +58,7 @@ def run_scrcpy():
     bit_rate = 2000000000
 
     client = scrcpy.Client(device=device_id, max_width=max_width, max_fps=max_fps, bitrate=bit_rate)
-    client.add_listener(scrcpy.EVENT_FRAME, on_client_frame)
+    # client.add_listener(scrcpy.EVENT_FRAME, on_client_frame)
     client.start(threaded=True)
 
     return client
@@ -78,7 +78,9 @@ while True:
     # 获取当前的图像
     lock.acquire()
     try:
-        state = globalFrame
+        # state = globalFrame
+        state = screenshot_window(window_title)
+        # cv2.imwrite(f"tmp/img_0.jpg", state)
     finally:
         lock.release()
     # 保证图像能正常获取
@@ -89,7 +91,7 @@ while True:
     # 初始化对局状态 对局未开始
     globalInfo.set_game_end()
     # 判断对局是否开始
-    checkGameStart = templateMatcher.match_start(state)
+    checkGameStart = ocr_check_start(state)
 
     if checkGameStart == 'started':
         print("-------------------------------对局开始-----------------------------------")
@@ -108,7 +110,8 @@ while True:
 
             lock.acquire()
             try:
-                next_state = globalFrame
+                # next_state = globalFrame
+                next_state = screenshot_window(window_title)
             finally:
                 lock.release()
 

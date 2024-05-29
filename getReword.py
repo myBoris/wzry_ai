@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -10,7 +11,7 @@ import torch
 from PIL import Image
 
 from globalInfo import GlobalInfo
-from methodutil import split_actions
+from methodutil import split_actions, ocr_read_status
 from statusModel import resnet34
 from torchvision import transforms
 
@@ -31,8 +32,10 @@ class GetRewordUtil():
         self.class_indict = json.load(json_file)
         self.matcher = templateMatcher
 
+        self._lock = threading.Lock()
         # 全局状态
         self.globalInfo = GlobalInfo()
+        self.globalInfo.set_value("reword", 0)
 
     def load_model(self, model_path):
         self.model.load_state_dict(torch.load(model_path))
@@ -207,26 +210,30 @@ class GetRewordUtil():
             start_time_md_class_name = time.time()
 
             # 提交任务,预测状态
-            future_class_name = executor.submit(self.matcher.match, image)
-            future_md_class_name = executor.submit(self.predict, image)
+            future_class_name = executor.submit(ocr_read_status, image)
+            # future_md_class_name = executor.submit(self.predict, image)
 
             # 等待所有任务完成
-            for future in as_completed([future_class_name, future_md_class_name]):
+            for future in as_completed([future_class_name]):
                 end_time = time.time()
                 if future == future_class_name:
                     class_name = future.result()
                     # print(f"tp运行时间: {end_time - start_time_class_name:.3f} 秒")
 
-                elif future == future_md_class_name:
-                    md_class_name = future.result()
+                # elif future == future_md_class_name:
+                #     md_class_name = future.result()
                     # print(f"md运行时间: {end_time - start_time_md_class_name:.3f} 秒")
 
-            # 如果 class_name 未定义，则使用 md_class_name
-            if not class_name:
-                class_name = md_class_name
+            # # 如果 class_name 未定义，则使用 md_class_name
+            # if not class_name:
+            #     class_name = md_class_name
 
         # 计算回报
-        rewordCount = self.calculate_reword(class_name)
+        # rewordCount = self.calculate_reword(class_name)
+
+        with self._lock:
+            rewordCount = self.globalInfo.get_value("reword")
+            self.globalInfo.set_value("reword", 0)
 
         # 判断对局是否结束
         if class_name == 'successes' or class_name == 'failed':
