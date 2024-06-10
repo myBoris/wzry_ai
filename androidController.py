@@ -4,6 +4,7 @@ import threading
 import time
 import math
 import scrcpy
+import os
 
 
 class AndroidController:
@@ -119,7 +120,8 @@ class AndroidController:
         return (x, y)
 
 def run_scrcpy():
-    device_id = "528e7355"
+    # 替换为你的设备ID
+    device_id = "emulator-5554"
     max_width = 1080
     max_fps = 60
     bit_rate = 2000000000
@@ -127,8 +129,13 @@ def run_scrcpy():
     client = scrcpy.Client(device=device_id, max_width=max_width, max_fps=max_fps, bitrate=bit_rate)
     client.start(threaded=True)
 
+    # 获取当前工作目录
+    current_directory = os.getcwd()
+
     # 命令参数
-    command = 'start cmd.exe /k scrcpy.exe -s 528e7355 -m 1080 --window-title wzry_ai'
+    command = f'start cmd.exe /k {current_directory}/tools/scrcpy.exe -s {device_id} -m 1080 --window-title wzry_ai'
+
+    print("执行命令：", command)
 
     # 执行命令
     subprocess.run(command, shell=True)
