@@ -37,7 +37,7 @@ class ImageWindow(QWidget):
         self.setLayout(layout)
 
     def initScrcpy(self):
-        self.client = scrcpy.Client(device="528e7355", max_width=1080, max_fps=120, bitrate=2000000000)
+        self.client = scrcpy.Client(device="emulator-5554", max_width=1080, max_fps=120, bitrate=2000000000)
         self.client.add_listener(scrcpy.EVENT_FRAME, self.get_frame)
         self.client.start(threaded=True)
 

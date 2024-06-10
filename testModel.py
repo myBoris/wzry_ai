@@ -52,7 +52,7 @@ def on_client_frame(frame):
         pass
 
 def run_scrcpy():
-    device_id = "528e7355"
+    device_id = "emulator-5554"
     max_width = 1080
     max_fps = 60
     bit_rate = 2000000000
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     try:
         # 模型
         model = WzryNet()
-        model.load_state_dict(torch.load("src/wzry_ai.pt"), strict=True)
+        # model.load_state_dict(torch.load("src/wzry_ai.pt"), strict=True)
         model.eval()  # 设置为评估模式
 
         # model = WzryNet()

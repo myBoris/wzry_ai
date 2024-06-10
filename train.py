@@ -52,7 +52,7 @@ def on_client_frame(frame):
 
 
 def run_scrcpy():
-    device_id = "528e7355"
+    device_id = "emulator-5554"
     max_width = 1080
     max_fps = 60
     bit_rate = 2000000000
