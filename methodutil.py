@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import torch
 import win32gui
+from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QApplication
 import torchvision.transforms as transforms
 import torch.nn.functional as F
@@ -46,6 +47,43 @@ skill_actions = {
     '1': {'action_id': 'swipe', 'action_name': '滑动'},
     '2': {'action_id': 'long_press', 'action_name': '长按'}
 }
+
+def screenshot_window(window_name):
+    """
+    截取指定窗口的内容并返回图像数据。
+
+    参数:
+    window_name (str): 窗口标题的部分或全部字符串。
+
+    返回:
+    np.ndarray: 截图的图像数据，如果窗口未找到则返回 None。
+    """
+    try:
+        # 获取窗口句柄
+        handle = win32gui.FindWindow(None, window_name)
+        if handle == 0:
+            raise Exception(f"窗口 '{window_name}' 未找到。")
+
+        # 初始化 QApplication
+        app = QApplication(sys.argv)
+        screen = QApplication.primaryScreen()
+
+        # 截取指定窗口的内容
+        img = screen.grabWindow(handle).toImage()
+
+        # 将 QImage 转换为 numpy 数组
+        img = img.convertToFormat(QImage.Format.Format_RGB32)
+        width = img.width()
+        height = img.height()
+        ptr = img.bits()
+        ptr.setsize(height * width * 4)
+        arr = np.array(ptr).reshape(height, width, 4)
+        arr = cv2.cvtColor(arr, cv2.COLOR_BGRA2BGR)
+
+        return arr
+    except Exception as e:
+        print(e)
+        return None
 
 def conver_model_result_to_action(action):
     action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(action)

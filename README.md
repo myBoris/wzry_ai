@@ -1,7 +1,10 @@
 # 声明:本项目的目的是为了学习人工智能，严禁外挂
 
 # wzry_ai
-人工智能模型玩王者荣耀。<br>本项目是开源项目，功能初步完成，后面还会更新。欢迎大家多多支持。<br>我未来会录制视频讲解，敬请期待
+人工智能模型玩王者荣耀。<br>本项目是开源项目，功能初步完成，后面还会更新。欢迎大家多多支持。<br>
+### 未来规划
++ 继续更新本项目，并录制视频讲解
++ 实现物理上操作王者荣耀，就是制作一双仿生机器手，通过机器手来控制手机屏幕来操作
 
 ## 1.环境配置教程
 + 1.使用anaconda创建一个环境 (conda create --name wzry_ai python=3.10)
@@ -10,6 +13,17 @@
 + + `pip install -r requirements.txt`
 + + 这是pytorch和cuda的安装
 + + `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
++ + onnxruntime-gpu的安装
++ + `pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/`
++ +  onnxruntime-gpu的运行时如果出现下面问题<br> `Could not locate zlibwapi.dll. Please make sure it is in your library path!`
++ + 解决方法:<br> 
+    `复制下面文件夹的文件: (2022.4.2这个可能不一样，按照你自己系统就行，Nsight Systems这个是一样的)
+
+        C:\Program Files\NVIDIA Corporation\Nsight Systems 2022.4.2\host-windows-x64\zlib.dll
+
+    复制到这个文件夹，并且改名为: zlibwapi:
+
+        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dl`
 
 ## 2.使用教程<br>
 #### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下，以后直接更新这个模型文件即可
@@ -26,6 +40,7 @@
     qq交流群:687853827
 
 ## 5.广告
++ 本人提供yolov10环境搭建辅助，价格合理，训练环境搭建，测试数据生成辅助，onnx模型部署辅助
 + [【腾讯云】特惠活动
 1 元开启 GPU 炼丹之旅
 澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693)

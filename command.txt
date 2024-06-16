@@ -1,3 +1,5 @@
 pip install -r requirements.txt
 
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
