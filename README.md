@@ -23,7 +23,7 @@
 
     复制到这个文件夹，并且改名为: zlibwapi:
 
-        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dLl`
+        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dll`
 
 ## 2.训练教程<br>
 ####   将[start.onnx](src%2Fstart.onnx)模型放在[src](src)目录下，直接运行[train.py](train.py)，会生成模型([wzry_ai.pt](src%2Fwzry_ai.pt))
