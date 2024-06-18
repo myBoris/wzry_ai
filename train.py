@@ -91,13 +91,12 @@ while True:
     if state is None:
         time.sleep(0.01)
         continue
-    cv2.imwrite(f"tmp/img_0.jpg", state)
+    # cv2.imwrite(f"tmp/img_0.jpg", state)
     # 初始化对局状态 对局未开始
     globalInfo.set_game_end()
     # 判断对局是否开始
     checkGameStart = start_check.get_max_label(state)
 
-    print(checkGameStart)
 
     if checkGameStart == 'started':
         print("-------------------------------对局开始-----------------------------------")

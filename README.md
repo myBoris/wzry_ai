@@ -23,24 +23,28 @@
 
     复制到这个文件夹，并且改名为: zlibwapi:
 
-        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dl`
+        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dLl`
 
-## 2.使用教程<br>
+## 2.训练教程<br>
+####   将[start.onnx](src%2Fstart.onnx)模型放在[src](src)目录下，直接运行[train.py](train.py)，会生成模型([wzry_ai.pt](src%2Fwzry_ai.pt))
+
+## 3.使用教程<br>
 #### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下，以后直接更新这个模型文件即可
 
-## 3.在真机和模拟器上的配置<br>
-### 真机和模拟器按键位置的修改<br>
+## 4.在真机和模拟器上的配置<br>
+### 真机和模拟器按键位置的修改,我使用的是真机(2400 x 1080),屏幕大小没关系<br>
 + #### 1.这个文件([androidController.py](androidController.py))的position就是坐标点，改这里会影响点击的位置.<br>
 ![屏幕截图1.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE1.png)
 + #### 如何获取点击的位置，我这里写了一个脚本，更改坐标后，运行一下，就知道点击的位置在哪.里面直接输入坐标实时更新还有问题，以后再修改，重新运行就行<br>
 ![屏幕截图2.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE2.png)
 
 
-## 4.其他
+## 5.其他
     qq交流群:687853827
 
-## 5.广告
-+ 本人提供yolov10环境搭建辅助，价格合理，训练环境搭建，测试数据生成辅助，onnx模型部署辅助
+## 6.广告
++ 1.提供yolov10环境搭建辅助，价格合理，训练环境搭建，测试数据生成辅助，onnx模型部署辅助
++ 2.提供java，python技术学习指导，强化学习技术指导，价格合理，具体详谈
 + [【腾讯云】特惠活动
 1 元开启 GPU 炼丹之旅
 澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693)
