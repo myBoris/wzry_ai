@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/myBoris/wzry_ai">
-        <img src="hhttps://socialify.git.ci/myBoris/wzry_ai/image?description=1&font=Rokkitt&language=1&name=1&owner=1&theme=Auto" alt="custom image"/>    
+        <img src="https://socialify.git.ci/myBoris/wzry_ai/image?description=1&font=Rokkitt&language=1&name=1&owner=1&theme=Auto" alt="wzry_ai"/>    
     </a>
 </p>
 
