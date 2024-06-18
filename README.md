@@ -1,3 +1,37 @@
+<p align="center">
+    <a href="https://github.com/myBoris/wzry_ai">
+        <img src="https://github.com/myBoris/wzry_ai/blob/main/images/logo.png" alt="custom image"/>
+    </a>
+</p>
+
+<p align="center">
+    <a href="https://github.com/myBoris/wzry_ai/stargazers">
+        <img src="https://img.shields.io/github/stars/myBoris/wzry_ai?style=flat-square&label=STARS&color=%23dfb317" alt="stars">
+    </a>
+    <a href="https://github.com/myBoris/wzry_ai/network/members">
+        <img src="https://img.shields.io/github/forks/myBoris/wzry_ai?style=flat-square&label=FORKS&color=%2397ca00" alt="forks">
+    </a>
+    <a href="https://github.com/myBoris/wzry_ai/issues">
+        <img src="https://img.shields.io/github/issues/myBoris/wzry_ai?style=flat-square&label=ISSUES&color=%23007ec6" alt="issues">
+    </a>
+    <a href="https://github.com/myBoris/wzry_ai/pulls">
+        <img src="https://img.shields.io/github/issues-pr/myBoris/wzry_ai?style=flat-square&label=PULLS&color=%23fe7d37" alt="pulls">
+    </a>
+</p>
+
+---
+
+## 访问统计
+
+<p align="center">
+    <a href="https://github.com/myBoris/wzry_ai">
+        <img src="http://profile-counter.glitch.me/wzry_ai/count.svg" alt="count"/>
+    </a>
+</p>
+
+---
+
+
 # 声明:本项目的目的是为了学习人工智能，严禁外挂
 
 # wzry_ai
