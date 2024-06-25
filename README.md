@@ -60,7 +60,7 @@
         C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dll`
 
 ## 2.训练教程<br>
-####   将[start.onnx](src%2Fstart.onnx)模型放在[src](src)目录下，直接运行[train.py](train.py)，会生成模型([wzry_ai.pt](src%2Fwzry_ai.pt))
+####   将start.onnx模型放在[models](models)目录下，直接运行[train.py](train.py)，会生成模型([wzry_ai.pt](src%2Fwzry_ai.pt))
 
 ## 3.使用教程<br>
 #### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下，以后直接更新这个模型文件即可
