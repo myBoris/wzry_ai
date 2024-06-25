@@ -1,5 +1,3 @@
-import json
-import os
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,28 +6,23 @@ import cv2
 import numpy as np
 import torch
 from PIL import Image
+from ppocronnx import TextSystem
 
 from globalInfo import GlobalInfo
 from methodutil import split_actions
 from statusModel import resnet34
 from torchvision import transforms
 
-from templateMatcher import TemplateMatcher
 
 
 class GetRewordUtil():
-    def __init__(self, templateMatcher=TemplateMatcher(threshold=0.8)):
+    def __init__(self):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = resnet34(num_classes=12).to(self.device)
-        self.load_model("resNet34_13.pth")
+        self.load_model("models/resNet34_13.pth")
 
-        # 模板匹配
-        json_path = 'class_indices.json'
-        assert os.path.exists(json_path), "file: '{}' dose not exist.".format(json_path)
-
-        json_file = open(json_path, "r")
-        self.class_indict = json.load(json_file)
-        self.matcher = templateMatcher
+        self.class_indict = ["readInfo", "backHome", "killHero", "attackSmallDragon", "attackBigDragon", "attackEnemyCreeps",
+                              "protectedOurSideCreeps", "attackEnemyMonster", "attackOurSideMonster", "attackEnemyTower", "protectedOurSideTower", "damageByTower"]
 
         # 全局状态
         self.globalInfo = GlobalInfo()
@@ -39,7 +32,6 @@ class GetRewordUtil():
         self.model.to(self.device)
 
     def predict(self, img):
-
         if isinstance(img, np.ndarray):
             imgArr = Image.fromarray(img)
 
@@ -60,10 +52,10 @@ class GetRewordUtil():
             predict = torch.softmax(output, dim=0)
             predict_cla = torch.argmax(predict).numpy()
 
-        print_res = "class: {}   prob: {:.3}".format(self.class_indict[str(predict_cla)],
+        print_res = "class: {}   prob: {:.3}".format(self.class_indict[predict_cla],
                                                      predict[predict_cla].numpy())
         # print(print_res)
-        res = self.class_indict[str(predict_cla)]
+        res = self.class_indict[predict_cla]
         if res == "backHome":
             res = None
         return res
@@ -193,12 +185,32 @@ class GetRewordUtil():
 
         return rewordResult
 
+
+    def check_finish(self, image):
+        text_sys = TextSystem()
+        res = text_sys.detect_and_ocr(image)
+        done = 0
+        class_name = None
+        for boxed_result in res:
+            # print("{}, {:.3f}".format(boxed_result.ocr_text, boxed_result.score))
+            if boxed_result.ocr_text == "胜利" or boxed_result.ocr_text == "VICTORY":
+                done = 1
+                class_name = 'successes'
+                break
+            elif boxed_result.ocr_text == "失败" or boxed_result.ocr_text == "DEFEAT":
+                done = 1
+                class_name = 'failed'
+                break
+        return done, class_name
+
+
     def get_reword(self, image_path, isFrame):
         if isFrame:
             image = image_path
         else:
             image = cv2.imread(image_path)
 
+        done = 0
         class_name = None
         # 使用 ThreadPoolExecutor 进行并行处理
         with ThreadPoolExecutor() as executor:
@@ -207,34 +219,26 @@ class GetRewordUtil():
             start_time_md_class_name = time.time()
 
             # 提交任务,预测状态
-            future_class_name = executor.submit(self.matcher.match, image)
+            future_class_name = executor.submit(self.check_finish, image)
             future_md_class_name = executor.submit(self.predict, image)
 
             # 等待所有任务完成
             for future in as_completed([future_class_name, future_md_class_name]):
                 end_time = time.time()
                 if future == future_class_name:
-                    class_name = future.result()
+                   done, class_name = future.result()
                     # print(f"tp运行时间: {end_time - start_time_class_name:.3f} 秒")
 
                 elif future == future_md_class_name:
                     md_class_name = future.result()
                     # print(f"md运行时间: {end_time - start_time_md_class_name:.3f} 秒")
 
-            # 如果 class_name 未定义，则使用 md_class_name
-            if not class_name:
+            # 如果没结束，判断局内状态
+            if done == 0:
                 class_name = md_class_name
 
         # 计算回报
         rewordCount = self.calculate_reword(class_name)
-
-        # 判断对局是否结束
-        if class_name == 'successes' or class_name == 'failed':
-            # 结束
-            done = 1
-        else:
-            # 未结束
-            done = 0
 
         return rewordCount, done, class_name
 

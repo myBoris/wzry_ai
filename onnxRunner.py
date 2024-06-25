@@ -5,8 +5,6 @@ import cv2
 class OnnxRunner:
     def __init__(self, model_path, input_width=640, input_height=640, confidence_thres=0.5, iou_thres=0.4, classes=[]):
         """
-        初始化 YOLOv10Runner 类
-
         :param model_path: ONNX 模型文件的路径
         :param input_width: 模型输入的宽度
         :param input_height: 模型输入的高度
@@ -153,10 +151,10 @@ class OnnxRunner:
 # 使用示例
 if __name__ == "__main__":
     # 使用示例
-    model_path = 'src/start.onnx'
+    model_path = 'models/start.onnx'
     classes = ["started"]  # 添加实际的类别名称
 
-    # model_path = 'yolov10b.onnx'
+    # model_path = 'yolov10b.models'
     # classes = [
     #             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
     #             "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",

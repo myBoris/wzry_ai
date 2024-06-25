@@ -1,50 +1,37 @@
-import threading
 import time
-
-import cv2
 import numpy as np
 import scrcpy
-
 from androidController import AndroidController
 from getReword import GetRewordUtil
 from globalInfo import GlobalInfo
-from keyBoardListener import KeyboardListener
-from methodutil import count_parameters, screenshot_window
-from templateMatcher import TemplateMatcher
+from methodutil import count_parameters
 from wzry_agent import Agent
 
 from wzry_env import Environment
 from onnxRunner import OnnxRunner
 
-listener = KeyboardListener()
-listener.start()
-
 # 全局状态
 globalInfo = GlobalInfo()
 
 class_names = ['started']
-start_check = OnnxRunner('src/start.onnx', classes=class_names)
+start_check = OnnxRunner('models/start.onnx', classes=class_names)
 
 agent = Agent()
 # 打印模型的参数数量
 count_parameters(agent.model)
 
-templateMatcher = TemplateMatcher(threshold=0.8)
-rewordUtil = GetRewordUtil(templateMatcher)
-
-lock = threading.Lock()
 # 全局变量声明
-globalInfo.set_value("globalFrame", None)
+globalInfo.set_global_frame(None)
 
 # window_title = "CPH2309"
 
 globalInfo.set_value("count", 0)
+
+
 def on_client_frame(frame):
-    lock.acquire()
-    try:
-        globalInfo.set_value("globalFrame", frame)
-    finally:
-        lock.release()
+    globalInfo.set_global_frame(frame)
+
+
 #
 #     if frame is not None:
 #         recordImgFlg = globalInfo.get_value("recordImg")
@@ -69,6 +56,7 @@ def run_scrcpy():
     return client
 
 
+rewordUtil = GetRewordUtil()
 controller = AndroidController(run_scrcpy())
 env = Environment(controller, rewordUtil)
 
@@ -77,16 +65,9 @@ epoch = 0
 state = None
 next_state = None
 
-
-
 while True:
     # 获取当前的图像
-    lock.acquire()
-    try:
-        # state = screenshot_window(window_title)
-        state = globalInfo.get_value("globalFrame")
-    finally:
-        lock.release()
+    state = globalInfo.get_global_frame()
     # 保证图像能正常获取
     if state is None:
         time.sleep(0.01)
@@ -96,7 +77,6 @@ while True:
     globalInfo.set_game_end()
     # 判断对局是否开始
     checkGameStart = start_check.get_max_label(state)
-
 
     if checkGameStart == 'started':
         print("-------------------------------对局开始-----------------------------------")
@@ -111,20 +91,7 @@ while True:
             action = agent.act(state)
             globalInfo.set_value("action", action)
             # 执行动作
-            env.step(action)
-
-            lock.acquire()
-            try:
-                # next_state = screenshot_window(window_title)
-                next_state = globalInfo.get_value("globalFrame")
-            finally:
-                lock.release()
-
-            if next_state is None:
-                time.sleep(0.01)
-                continue
-
-            reward, done, info = env.get_reword(next_state)
+            next_state, reward, done, info = env.step(action)
             print(info)
 
             # 对局结束
@@ -153,5 +120,3 @@ while True:
     else:
         print("对局未开始")
         time.sleep(0.1)
-
-

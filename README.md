@@ -77,8 +77,6 @@
     qq交流群:687853827
 
 ## 6.广告
-+ 1.提供yolov10环境搭建辅助，价格合理，训练环境搭建，测试数据生成辅助，onnx模型部署辅助
-+ 2.提供java，python技术学习指导，强化学习技术指导，价格合理，具体详谈
 + [【腾讯云】特惠活动
 1 元开启 GPU 炼丹之旅
 澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693)

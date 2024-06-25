@@ -1,4 +1,5 @@
 import datetime
+import threading
 
 
 def singleton(cls):
@@ -16,6 +17,7 @@ def singleton(cls):
 class GlobalInfo:
     def __init__(self):
         self._info = {}
+        self.lock = threading.Lock()
 
     def set_value(self, key, value):
         self._info[key] = value
@@ -75,3 +77,18 @@ class GlobalInfo:
         else:
             return False
 
+    # -------------------------------state-------------------------------------
+    def set_global_frame(self, globalFrame):
+        self.lock.acquire()
+        try:
+            self.set_value("globalFrame", globalFrame)
+        finally:
+            self.lock.release()
+
+    def get_global_frame(self):
+        self.lock.acquire()
+        try:
+            globalFrame = self.get_value("globalFrame")
+            return globalFrame
+        finally:
+            self.lock.release()
