@@ -48,7 +48,10 @@
 + + 这是pytorch和cuda的安装
 + + `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
 + + onnxruntime-gpu的安装
-+ + `pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/`
+    `cuda是11
+        pip install onnxruntime-gpu`
+    `cuda是12
+        pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/`
 + +  onnxruntime-gpu的运行时如果出现下面问题<br> `Could not locate zlibwapi.dll. Please make sure it is in your library path!`
 + + 解决方法:<br> 
     `复制下面文件夹的文件: (2022.4.2这个可能不一样，按照你自己系统就行，Nsight Systems这个是一样的)
@@ -77,6 +80,7 @@
     qq交流群:687853827
 
 ## 6.广告
++ AI创业做啥好呢？
 + [【腾讯云】特惠活动
 1 元开启 GPU 炼丹之旅
 澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693)
