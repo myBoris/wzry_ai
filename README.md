@@ -43,15 +43,23 @@
 ## 1.环境配置教程
 + 1.使用anaconda创建一个环境 (conda create --name wzry_ai python=3.10)
 + 2.安装必要的包,安装命令在 ([command.txt](command.txt)) 
-+ + 这是必要的包
-+ + `pip install -r requirements.txt`
-+ + 这是pytorch和cuda的安装
-+ + `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
-+ + onnxruntime-gpu的安装
-    `cuda是11
-        pip install onnxruntime-gpu`
-    `cuda是12
+     `这是必要的包
+
+       pip install -r requirements.txt
+
+     这是pytorch和cuda的安装
+
+       pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
+
++ + onnxruntime-gpu的安装:<br>
+     `如果cuda是11
+
+        pip install onnxruntime-gpu
+
+     如果cuda是12
+
         pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/`
+
 + +  onnxruntime-gpu的运行时如果出现下面问题<br> `Could not locate zlibwapi.dll. Please make sure it is in your library path!`
 + + 解决方法:<br> 
     `复制下面文件夹的文件: (2022.4.2这个可能不一样，按照你自己系统就行，Nsight Systems这个是一样的)
