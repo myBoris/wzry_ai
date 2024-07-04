@@ -1,6 +1,8 @@
 import time
 import numpy as np
 import scrcpy
+
+import argparses
 from androidController import AndroidController
 from getReword import GetRewordUtil
 from globalInfo import GlobalInfo
@@ -43,7 +45,7 @@ def on_client_frame(frame):
 
 
 def run_scrcpy():
-    device_id = "528e7355"
+    device_id = argparses.args.device_id
     # device_id = "192.168.0.75:5555"
     max_width = 1080
     max_fps = 60
