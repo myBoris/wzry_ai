@@ -48,6 +48,7 @@ skill_actions = {
     '2': {'action_id': 'long_press', 'action_name': '长按'}
 }
 
+
 def screenshot_window(window_name):
     """
     截取指定窗口的内容并返回图像数据。
@@ -84,6 +85,7 @@ def screenshot_window(window_name):
     except Exception as e:
         print(e)
         return None
+
 
 def conver_model_result_to_action(action):
     action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(action)
@@ -130,9 +132,11 @@ def count_parameters(model):
     print(f"Total parameters: {total_params}")
     return total_params
 
+
 def combine_actions(action1, angle1, action2, type2, angle2, duration2):
     # 将多个动作组合成一个向量
     return torch.cat((action1, angle1, action2, type2, angle2, duration2), dim=-1)
+
 
 def split_actions(combined_action):
     # 将组合的动作向量分解为单独的动作
@@ -155,6 +159,7 @@ def split_actions(combined_action):
     # 长按时间
     duration2 = combined_action[:, 746:]
     return action1, angle1, action2, type2, angle2, duration2
+
 
 # 使用示例
 if __name__ == "__main__":

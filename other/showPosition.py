@@ -3,9 +3,10 @@ import sys
 
 import cv2
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout
-from PyQt5.QtGui import QImage, QPixmap,QIntValidator
+from PyQt5.QtGui import QImage, QPixmap, QIntValidator
 from PyQt5.QtCore import QMutex
 import scrcpy
+
 
 class ImageWindow(QWidget):
     def __init__(self):
@@ -15,7 +16,6 @@ class ImageWindow(QWidget):
         self.initUI()
         self.initScrcpy()
         self.mutex = QMutex()
-
 
     def initUI(self):
         self.setWindowTitle('SCRCPY Stream')
@@ -68,12 +68,9 @@ class ImageWindow(QWidget):
             return int(match.group(0))
         return 100
 
+
 # 创建 PyQt 应用
 app = QApplication(sys.argv)
 ex = ImageWindow()
 ex.show()
 sys.exit(app.exec_())
-
-
-
-

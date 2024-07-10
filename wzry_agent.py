@@ -27,7 +27,7 @@ class Agent:
         self.memory = deque(maxlen=memory_size)
         self.target_update = target_update
         self.target_update_count = 0
-        self.train_model_path=train_model_path
+        self.train_model_path = train_model_path
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.model = WzryNet().to(self.device)

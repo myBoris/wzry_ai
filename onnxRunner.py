@@ -2,6 +2,7 @@ import onnxruntime as ort
 import numpy as np
 import cv2
 
+
 class OnnxRunner:
     def __init__(self, model_path, input_width=640, input_height=640, confidence_thres=0.5, iou_thres=0.4, classes=[]):
         """
@@ -127,7 +128,6 @@ class OnnxRunner:
                 result = det["class_name"]
         return result
 
-
     def draw_detections(self, image, detections):
         """
         在图像上绘制检测结果
@@ -148,6 +148,7 @@ class OnnxRunner:
 
         return image
 
+
 # 使用示例
 if __name__ == "__main__":
     # 使用示例
@@ -166,7 +167,6 @@ if __name__ == "__main__":
     #             "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase",
     #             "scissors", "teddy bear", "hair drier", "toothbrush"
     #         ]
-
 
     runner = OnnxRunner(model_path, classes=classes)
 
@@ -189,4 +189,3 @@ if __name__ == "__main__":
     cv2.imshow("Detections", image_with_detections)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-

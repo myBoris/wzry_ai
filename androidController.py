@@ -118,6 +118,7 @@ class AndroidController:
         y = int(center[1] + radius * math.sin(angle_rad))
         return (x, y)
 
+
 def run_scrcpy():
     device_id = "528e7355"
     max_width = 1080
@@ -151,7 +152,7 @@ if __name__ == "__main__":
         # ]
         # controller.execute_actions(actions)
         # time.sleep(15)  # 保持程序运行以观察效果
-        while(True):
+        while (True):
             random_angle = random.randint(0, 359)
             actions = [
                 {'action': 'move', 'type': 'swipe', 'angle': random_angle}

@@ -2,7 +2,7 @@ import threading
 import time
 
 from globalInfo import GlobalInfo
-from methodutil import  conver_model_result_to_action
+from methodutil import conver_model_result_to_action
 
 
 class Environment():
@@ -25,4 +25,3 @@ class Environment():
         reward, done, info = self.rewordUtil.get_reword(next_state, True)
 
         return next_state, reward, done, info
-

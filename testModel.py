@@ -12,7 +12,6 @@ from model import WzryNet
 
 
 def load_and_preprocess_image(image, model_input_size=(640, 640)):
-
     # 将图片从BGR转换为RGB
     # images = cv2.cvtColor(images, cv2.COLOR_BGR2RGB)
 
@@ -28,9 +27,11 @@ def load_and_preprocess_image(image, model_input_size=(640, 640)):
 
     return image
 
+
 # 全局变量声明
 globalFrame = None
 lock = threading.Lock()
+
 
 def on_client_frame(frame):
     global globalFrame
@@ -50,6 +51,7 @@ def on_client_frame(frame):
         # print('client frame is None')
         # print("图像解码失败!")
         pass
+
 
 def run_scrcpy():
     device_id = "528e7355"
@@ -71,6 +73,7 @@ def preprocess_image(image, target_size=(640, 640), device='cpu'):
     tensor_image = torch.from_numpy(resized_image).float().permute(2, 0, 1)
     return tensor_image.to(device).unsqueeze(0)
 
+
 # 使用示例
 if __name__ == "__main__":
     # 示例使用
@@ -86,7 +89,7 @@ if __name__ == "__main__":
         # model.eval()  # 设置为评估模式
         image = None
 
-        while(True):
+        while (True):
             # 记录开始时间
             start_time = time.time()
 
