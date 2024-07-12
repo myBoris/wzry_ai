@@ -94,7 +94,7 @@ while True:
             globalInfo.set_value("action", action)
             # 执行动作
             next_state, reward, done, info = env.step(action)
-            print(info)
+            print(reward, info)
 
             # 对局结束
             if done == 1:
