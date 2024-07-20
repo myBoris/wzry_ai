@@ -7,17 +7,14 @@ import numpy as np
 import torch
 from ppocronnx import TextSystem
 
+from argparses import device
 from globalInfo import GlobalInfo
-from methodutil import split_actions
-from templateMatch import TemplateMatcher
 
 
 class GetRewordUtil:
     def __init__(self):
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = device
 
-        template_dir = "template"
-        self.matcher = TemplateMatcher(template_dir)
         # 全局状态
         self.globalInfo = GlobalInfo()
 
@@ -87,46 +84,35 @@ class GetRewordUtil:
 
         return isAttack, res
 
-    def calculate_reword(self, status_name, attack_reword):
+    def calculate_reword(self, status_name, attack_reword, action):
         rewordResult = 0
-        gamePassTime = self.globalInfo.get_game_time_pass()
 
         if status_name is None:
             rewordResult = 0
         elif status_name == "attack":
-            action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(
-                self.globalInfo.get_value("action"))
+            move_action, angle, info_action, attack_action, action_type, arg1, arg2, arg3 = action
 
-            # 左手的操作
-            # 获取最可能的action
-            action1 = torch.argmax(action1_logits, dim=1)  # 得到0-3之间的整数
-
-            # 右手的操作
-            # 获取最可能的action
-            action2 = torch.argmax(action2_logits, dim=1)  # 得到0-20之间的整数
-
-            attack_action = [3,4,5,6,10,11,12,13]
-            if action1 != 0 or action2 in attack_action:
+            attack_action = [1, 2, 3, 8, 9, 10]
+            if move_action != 0 or attack_action in attack_action:
 
                 rewordResult = attack_reword
             else:
                 rewordResult = -1
         elif status_name == "backHome":
-            action1_logits, angle1_logits, action2_logits, type2_logits, angle2_logits, duration2_logits = split_actions(
-                self.globalInfo.get_value("action"))
+            move_action, angle, info_action, attack_action, action_type, arg1, arg2, arg3 = action
 
-            # 左手的操作
-            # 获取最可能的action
-            action1 = torch.argmax(action1_logits, dim=1)  # 得到0-3之间的整数
-
-            # 右手的操作
-            # 获取最可能的action
-            action2 = torch.argmax(action2_logits, dim=1)  # 得到0-20之间的整数
-
-            if action1 != 0 and action2 != 0:
+            if move_action == 0 and info_action == 0 and attack_action == 0:
                 rewordResult = 1
             else:
                 rewordResult = -1
+        elif status_name == "death":
+            move_action, angle, info_action, attack_action, action_type, arg1, arg2, arg3 = action
+
+            if move_action == 0 and info_action == 0 and attack_action == 0:
+                rewordResult = -1
+            else:
+                rewordResult = -5
+
         elif status_name == "successes":
             rewordResult = 10000
         elif status_name == "failed":
@@ -153,7 +139,7 @@ class GetRewordUtil:
                 break
         return done, class_name
 
-    def get_reword(self, image_path, isFrame):
+    def get_reword(self, image_path, isFrame, action):
         if isFrame:
             image = image_path
         else:
@@ -190,7 +176,7 @@ class GetRewordUtil:
                 class_name = md_class_name
 
         # 计算回报
-        rewordCount = self.calculate_reword(class_name, attack_rewordCount)
+        rewordCount = self.calculate_reword(class_name, attack_rewordCount, action)
 
         return rewordCount, done, class_name
 
