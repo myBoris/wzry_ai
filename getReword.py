@@ -9,6 +9,7 @@ from ppocronnx import TextSystem
 
 from argparses import device
 from globalInfo import GlobalInfo
+from onnxRunner import OnnxRunner
 
 
 class GetRewordUtil:
@@ -17,6 +18,8 @@ class GetRewordUtil:
 
         # 全局状态
         self.globalInfo = GlobalInfo()
+        class_names = ['death']
+        self.death_check = OnnxRunner('models/death.onnx', classes=class_names)
 
     def predict(self, img):
         is_attack, rewordCount = self.calculate_attack_reword(img)
@@ -80,7 +83,11 @@ class GetRewordUtil:
         res = 0
         if area > 0:
             isAttack = True
-            res = 10 - int((area * 10) / total_area)
+            p = int((area * 10) / total_area)
+            if res > 8:
+                res = 0
+            else:
+                res = 11 - int((area * 10) / total_area)
 
         return isAttack, res
 
@@ -88,7 +95,7 @@ class GetRewordUtil:
         rewordResult = 0
 
         if status_name is None:
-            rewordResult = 0
+            rewordResult = -1
         elif status_name == "attack":
             move_action, angle, info_action, attack_action, action_type, arg1, arg2, arg3 = action
 
@@ -139,6 +146,13 @@ class GetRewordUtil:
                 break
         return done, class_name
 
+    def check_death(self, image):
+        checkGameDeath = self.death_check.get_max_label(image)
+
+        if checkGameDeath == 'death':
+            return checkGameDeath
+        return None
+
     def get_reword(self, image_path, isFrame, action):
         if isFrame:
             image = image_path
@@ -147,6 +161,7 @@ class GetRewordUtil:
 
         done = 0
         class_name = None
+        death_class_name = None
         md_class_name = None
         # 使用 ThreadPoolExecutor 进行并行处理
         with ThreadPoolExecutor() as executor:
@@ -156,15 +171,18 @@ class GetRewordUtil:
 
             # 提交任务,预测状态
             future_class_name = executor.submit(self.check_finish, image)
+            future_check_death = executor.submit(self.check_death, image)
+
             future_md_class_name = executor.submit(self.predict, image)
 
             # 等待所有任务完成
-            for future in as_completed([future_class_name, future_md_class_name]):
+            for future in as_completed([future_class_name, future_check_death, future_md_class_name]):
                 end_time = time.time()
                 if future == future_class_name:
                     done, class_name = future.result()
                     # print(f"tp运行时间: {end_time - start_time_class_name:.3f} 秒")
-
+                elif future == future_check_death:
+                    death_class_name = future.result()
                 elif future == future_md_class_name:
                     is_attack, attack_rewordCount = future.result()
                     if is_attack:
@@ -173,7 +191,10 @@ class GetRewordUtil:
 
             # 如果没结束，判断局内状态
             if done == 0:
-                class_name = md_class_name
+                if death_class_name is not None:
+                    class_name = death_class_name
+                elif md_class_name is not None:
+                    class_name = md_class_name
 
         # 计算回报
         rewordCount = self.calculate_reword(class_name, attack_rewordCount, action)

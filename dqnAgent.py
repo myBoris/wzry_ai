@@ -104,6 +104,8 @@ class DQNAgent:
         # 计算损失
         loss = self.criterion(state_action_q_values, expected_state_action_values.unsqueeze(1))
 
+        print("loss", loss)
+
         # 优化模型
         self.optimizer.zero_grad()
         loss.backward()

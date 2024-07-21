@@ -24,9 +24,6 @@ env = Environment(tool, rewordUtil)
 agent = DQNAgent()
 
 def data_collector():
-    return_list = []
-    epoch = 0
-
     while True:
         # 获取当前的图像
         state = tool.screenshot_window()
@@ -43,38 +40,24 @@ def data_collector():
             print("-------------------------------对局开始-----------------------------------")
             globalInfo.set_game_start()
 
-            # 这一局的总回报
-            epoch_return_total = 0
-            epsilon = 0
             # 对局开始了，进行训练
             while globalInfo.is_start_game():
                 # 获取预测动作
                 action = agent.select_action(state)
 
                 next_state, reward, done, info = env.step(action)
-                print(info)
+                print(info, reward)
 
                 # 对局结束
                 if done == 1:
-                    epsilon = epsilon + 1
                     print("-------------------------------对局结束-----------------------------------")
                     globalInfo.set_game_end()
-                    print(f"Episode: {epoch}, Reward total: {epoch_return_total},  Time: {time}, Epsilon: {epsilon}")
                     break
 
                 # 追加经验
                 globalInfo.store_transition_dqn(state, action, reward, next_state, done)
 
                 state = next_state
-
-                epoch_return_total += reward
-
-            # 保存每一局结束的reword
-            return_list.append(epoch_return_total)
-            # 计算前n个元素的平均值
-            average = np.mean(return_list[:epoch])
-            print("average reword", average)
-            epoch = epoch + 1
 
         else:
             print("对局未开始")

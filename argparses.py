@@ -50,8 +50,8 @@ def get_args():
     parser.add_argument('--epsilon', type=float, default=1.0, help="Initial exploration rate")
     parser.add_argument('--epsilon_decay', type=float, default=0.995, help="Exploration rate decay")
     parser.add_argument('--epsilon_min', type=float, default=0.01, help="Minimum exploration rate")
-    parser.add_argument('--model_path', type=str, default=None, help="Path to the model to load")
-    parser.add_argument('--num_episodes', type=int, default=100, help="Number of episodes to collect data")
+    parser.add_argument('--model_path', type=str, default="src/wzry_ai.pt", help="Path to the model to load")
+    parser.add_argument('--num_episodes', type=int, default=10, help="Number of episodes to collect data")
     parser.add_argument('--target_update', type=int, default=10, help="Number of episodes to collect data")
 
     return parser.parse_args()
