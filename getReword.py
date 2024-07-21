@@ -84,7 +84,7 @@ class GetRewordUtil:
         if area > 0:
             isAttack = True
             p = int((area * 10) / total_area)
-            if res > 8:
+            if p > 9:
                 res = 0
             else:
                 res = 11 - int((area * 10) / total_area)
