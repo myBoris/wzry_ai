@@ -21,17 +21,6 @@
 
 ---
 
-## 访问统计
-
-<p align="center">
-    <a href="https://github.com/myBoris/wzry_ai">
-        <img src="http://profile-counter.glitch.me/wzry_ai/count.svg" alt="count"/>
-    </a>
-</p>
-
----
-
-
 >声明:本项目的目的是为了学习人工智能，严禁外挂
 
 ### 一、项目简介
@@ -93,15 +82,19 @@
 
 ### 三、训练教程
 
-- 将qq群文件下载的onnx模型放在models目录下，直接运行train.py，会生成模型(wzry_ai.pt)
+- 将qq群文件下载的onnx模型放在models目录下，直接运行train.py,会生成模型(wzry_ai.pt)
 
 <br>
 
-### 四、在真机和模拟器上的配置(坐标工具类暂时失效，等待重写)
+### 四、在真机和模拟器上的配置
 
-- 修改按键映射，按键映射在这个文件里[argparses.py](argparses.py)
-
+- 修改按键映射，按键映射在这个文件里[argparses.py](argparses.py)<br>
+- 修改这里的position，这里是操控位置(X,Y)在屏幕宽高的的百分比，理论讲王者的百分比位置是固定的，一般不用改，对不上时需要更改<br>
+ ![position.png](images%2Fposition.png)
 <br>
+- 运行[showposition.py](showposition.py)<br>
+- 点击图片的位置，下方会有结果，把里面的值填到[argparses.py](argparses.py)当中就行，下图点击的是移动按钮的位置
+  ![showposition.png](images%2Fshowposition.png)
 
 ### 五、其他
 
