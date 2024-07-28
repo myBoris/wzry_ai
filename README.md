@@ -32,71 +32,106 @@
 ---
 
 
-# 声明:本项目的目的是为了学习人工智能，严禁外挂
+>声明:本项目的目的是为了学习人工智能，严禁外挂
 
-# wzry_ai
-人工智能模型玩王者荣耀。<br>本项目是开源项目，功能初步完成，后面还会更新。欢迎大家多多支持。<br>
-### 未来规划
-+ 继续更新本项目，并录制视频讲解
-+ 实现物理上操作王者荣耀，就是制作一双仿生机器手，通过机器手来控制手机屏幕来操作
+### 一、项目简介
+:::success
 
-## 1.环境配置教程
-+ 1.使用anaconda创建一个环境 (conda create --name wzry_ai python=3.10)
-+ 2.安装必要的包,安装命令在 ([command.txt](doc/command.txt)) 
-     `这是必要的包
+- 这是一个开源的人工智能模型玩王者荣耀的项目。
+- 同时第一期想做的工程全部完成了，以后将在这个基础上进行升级
 
-       pip install -r requirements.txt
+:::
+<br>
 
-     这是pytorch和cuda的安装
+### 二、环境配置教程
+:::info
 
-       pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+- 1.下载anaconda并安装<br>
+   下载地址:
+   `
+    https://www.anaconda.com/download
+   `<br><br>
+- 2.使用anaconda创建一个环境<br>
+    命令: `
+      conda create --name wzry_ai python=3.10
+   `<br><br>
+- 3.激活这个环境<br>
+    命令: `
+      conda activate wzry_ai
+   `<br><br>
+- 4.在wzry_ai环境安装必要的包<br>
+  1. 执行下面环境安装命令<br>
      `
+         pip install -r requirements.txt
+     `<br><br>
+  2. 执行下面环境命令pytorch和cuda
+  
+     ` 
+         pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+     `<br><br>
+  3. 执行下面环境命令安装onnxruntime-gpu<br>
+     如果cuda是11
 
-+ + onnxruntime-gpu的安装:<br>
-     `如果cuda是11
-
-        pip install onnxruntime-gpu
-
-     如果cuda是12
-
-        pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+      `
+          pip install onnxruntime-gpu
+     `<br>
+     如果cuda是12<br>
+     
      `
+      pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+      `<br><br>
+  4. onnxruntime-gpu的运行时如果出现下面问题
+  
+     `
+         Could not locate zlibwapi.dll. Please make sure it is in your library path!
+     `<br>
+     解决方法:<br> 
+     复制下面文件夹的文件: (2022.4.2这个可能不一样，按照你自己系统就行，Nsight Systems这个是一样的)<br>
+  
+        `C:\Program Files\NVIDIA Corporation\Nsight Systems 2022.4.2\host-windows-x64\zlib.dll`
 
-+ +  onnxruntime-gpu的运行时如果出现下面问题<br> `Could not locate zlibwapi.dll. Please make sure it is in your library path!`
-+ + 解决方法:<br> 
-    `复制下面文件夹的文件: (2022.4.2这个可能不一样，按照你自己系统就行，Nsight Systems这个是一样的)
+     复制到这个文件夹，并且改名为: zlibwapi:<br> 
+        `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dll`<br><br>
+:::
+<br>
 
-        C:\Program Files\NVIDIA Corporation\Nsight Systems 2022.4.2\host-windows-x64\zlib.dll
+### 三、训练教程
+:::warning
 
-    复制到这个文件夹，并且改名为: zlibwapi:
+- 将qq群文件下载的onnx模型放在models目录下，直接运行train.py，会生成模型(wzry_ai.pt)
 
-        C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dll`
+:::
+<br>
 
-## 2.训练教程<br>
-####   将qq群文件下载的start.onnx模型放在[models](models)目录下，直接运行[train.py](train.py)，会生成模型([wzry_ai.pt](src%2Fwzry_ai.pt))
+### 四、在真机和模拟器上的配置(坐标工具类暂时失效，等待重写)
+:::danger
 
-## 3.使用教程(暂时失效，等待重写)<br>
-#### 直接运行[testModel.py](testModel.py)就行，模型([wzry_ai.pt](src%2Fwzry_ai.pt))放在[src](src)目录下，以后直接更新这个模型文件即可
+- 修改按键映射，按键映射在这个文件里[argparses.py](argparses.py)
+:::
+<br>
 
-## 4.在真机和模拟器上的配置(暂时失效，等待重写)<br>
-### 真机和模拟器按键位置的修改,我使用的是真机(2400 x 1080),屏幕大小没关系<br>  
-+ #### 1.这个文件([androidController.py](androidController.py))的position就是坐标点，改这里会影响点击的位置.<br>
-![屏幕截图1.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE1.png)
-+ #### 如何获取点击的位置，我这里写了一个脚本[other](other)/[showPosition.py](other%2FshowPosition.py)，更改坐标后，运行一下，就知道点击的位置在哪.里面直接输入坐标实时更新还有问题，以后再修改，重新运行就行<br>
-![屏幕截图2.png](https://github.com/myBoris/wzry_ai/blob/main/images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE2.png)
+### 五、其他
+:::success
 
+- qq交流群:687853827
 
-## 5.其他
-    qq交流群:687853827
+:::
+<br>
 
-## 6.广告
-+ AI创业做啥好呢？
-+ [【腾讯云】特惠活动
+### 六、广告
+:::success
+
+- AI创业做啥好呢？
+- [【腾讯云】特惠活动
 1 元开启 GPU 炼丹之旅
 澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693)
 
-+ [【腾讯云】2核2G4M云服务器新老同享99元/年，续费同价](https://cloud.tencent.com/act/cps/redirect?redirect=5990&cps_key=11812351d85cc069a0941ce4c8d07693&from=console)
+- [【腾讯云】2核2G4M云服务器新老同享99元/年，续费同价](https://cloud.tencent.com/act/cps/redirect?redirect=5990&cps_key=11812351d85cc069a0941ce4c8d07693&from=console)
 
-+ [【阿里云】云服务器 精选特惠，老用户升级最低享6.5折，协助您选择最合适配置方案。](https://www.aliyun.com/product/ecs?userCode=cgwj31jh)
+- [【阿里云】云服务器 精选特惠，老用户升级最低享6.5折，协助您选择最合适配置方案。](https://www.aliyun.com/product/ecs?userCode=cgwj31jh)
 
 
+:::
+<br>
+
+#### 注：开源不易，共同努力。
