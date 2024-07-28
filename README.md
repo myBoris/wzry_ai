@@ -90,10 +90,10 @@
 
 - 修改按键映射，按键映射在这个文件里[argparses.py](argparses.py)<br>
 - 修改这里的position，这里是操控位置(X,Y)在屏幕宽高的的百分比，理论讲王者的百分比位置是固定的，一般不用改，对不上时需要更改<br>
- ![position.png](images%2Fposition.png)
-<br>
+  ![position.png](images%2Fposition.png)<br><br>
+
 - 运行[showposition.py](showposition.py)<br>
-- 点击图片的位置，下方会有结果，把里面的值填到[argparses.py](argparses.py)当中就行，下图点击的是移动按钮的位置
+- 点击图片的位置，下方会有结果，把里面的值填到[argparses.py](argparses.py)当中就行，下图点击的是移动按钮的位置<br><br>
   ![showposition.png](images%2Fshowposition.png)
 
 ### 五、其他
