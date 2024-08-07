@@ -1,7 +1,5 @@
-opencv-contrib-python
-scrcpy-client[ui]
-PyQt5
-win32gui
-pywin32
-keyboard
-ppocr-onnx
+opencv-contrib-python==4.9.0.80
+PyQt5==5.15.10
+pywin32==306
+keyboard==0.13.5
+ppocr-onnx==0.0.3.9
