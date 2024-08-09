@@ -34,6 +34,7 @@
   
   环境安装详细教程，在doc/说明文档.md里面
   bilibili环境安装视频:
+  https://www.bilibili.com/video/BV1ZXYuePEUG/?spm_id_from=333.999.0.0&vd_source=c31e7165590bf9282be67774f1d2e36c
 ```
 
 <br>
