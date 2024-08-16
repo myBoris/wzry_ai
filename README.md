@@ -33,7 +33,7 @@
   qq交流群:687853827
   
   环境安装详细教程，在doc/说明文档.md里面
-  环境安装视频:(bilibili)
+  环境安装视频:(bilibili) 欢迎来关注up，点赞，投币，评论，提出你的建议
   https://www.bilibili.com/video/BV1ZXYuePEUG/?spm_id_from=333.999.0.0&vd_source=c31e7165590bf9282be67774f1d2e36c
 ```
 

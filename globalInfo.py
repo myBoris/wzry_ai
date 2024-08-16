@@ -1,5 +1,9 @@
 import datetime
+import json
+import os
 import threading
+
+from filelock import FileLock
 
 from memory import ReplayMemory
 
@@ -98,3 +102,29 @@ class GlobalInfo:
     def random_batch_size_memory_dqn(self):
         transitions = self.dqn_memory.sample(self.batch_size)
         return transitions
+
+    # -------------------------------训练状态-------------------------------------
+    def update_data_file(self, new_data):
+        lock = FileLock("training_data.json.lock")
+
+        with lock:
+            if os.path.exists('training_data.json'):
+                with open('training_data.json', 'r') as file:
+                    data = json.load(file)
+            else:
+                data = []
+
+            for new_plot in new_data:
+                title_found = False
+                for existing_plot in data:
+                    if existing_plot['title'] == new_plot['title']:
+                        existing_plot['x_data'].extend(new_plot['x_data'])
+                        existing_plot['y_data'].extend(new_plot['y_data'])
+                        title_found = True
+                        break
+
+                if not title_found:
+                    data.append(new_plot)
+
+            with open('training_data.json', 'w') as file:
+                json.dump(data, file, indent=4)

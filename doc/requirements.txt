@@ -3,3 +3,5 @@ PyQt5==5.15.10
 pywin32==306
 keyboard==0.13.5
 ppocr-onnx==0.0.3.9
+matplotlib==3.9.2
+filelock==3.13.1
