@@ -66,6 +66,3 @@ class Environment():
 
         return next_state, reward, done, info
 
-
-if __name__ == '__main__':
-    Environment(None, None)

@@ -210,19 +210,3 @@ def generate_random_number(n):
     return random.randint(0, n)
 
 
-if __name__ == "__main__":
-    tool = AndroidTool()
-
-    try:
-        while True:
-            tool.action_move({"action": 1, "angle": generate_random_number(359)})
-            tool.action_info({"action": generate_random_number(8)})
-            tool.action_attack({"action": generate_random_number(10),
-                                "action_type": generate_random_number(2),
-                                "arg1": generate_random_number(10),
-                                "arg2": generate_random_number(99),
-                                "arg3": generate_random_number(4)})
-
-            time.sleep(0.01)  # 模拟随机间隔
-    except KeyboardInterrupt:
-        tool.stop()
