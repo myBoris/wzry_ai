@@ -1,5 +1,7 @@
 import threading
 import time
+
+import cv2
 import numpy as np
 from android_tool import AndroidTool
 from argparses import args
@@ -19,6 +21,7 @@ start_check = OnnxRunner('models/start.onnx', classes=class_names)
 rewordUtil = GetRewordUtil()
 tool = AndroidTool()
 tool.show_scrcpy()
+# tool.show_action_log()
 env = Environment(tool, rewordUtil)
 
 agent = DQNAgent()
@@ -31,6 +34,7 @@ def data_collector():
         if state is None:
             time.sleep(0.01)
             continue
+        # cv2.imwrite('output_image.jpg', state)
         # 初始化对局状态 对局未开始
         globalInfo.set_game_end()
         # 判断对局是否开始

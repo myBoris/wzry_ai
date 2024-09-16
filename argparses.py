@@ -40,8 +40,9 @@ attack_actions_detail = {
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--iphone_id', type=str, default='528e7355', help="device_id")
-    parser.add_argument('--window_title', type=str, default='wzry_ai', help="device_id")
+    parser.add_argument('--iphone_id', type=str, default='127.0.0.1:7555', help="iphone_id")
+    parser.add_argument('--real_iphone', type=bool, default=False, help="real_iphone")
+    parser.add_argument('--window_title', type=str, default='wzry_ai', help="window_title")
     parser.add_argument('--device_id', type=str, default='cuda:0', help="device_id")
     parser.add_argument('--memory_size', type=int, default=10000, help="Replay memory size")
     parser.add_argument('--batch_size', type=int, default=64, help="Batch size for training")

@@ -111,9 +111,10 @@ class AndroidTool:
         return x, y
 
     def show_scrcpy(self):
-        subprocess.Popen(
-            [f"{self.scrcpy_dir}/scrcpy.exe", "-s", self.device_serial, "-m", "1080", "--window-title",
-             args.window_title])
+        if args.real_iphone:
+            subprocess.Popen(
+                [f"{self.scrcpy_dir}/scrcpy.exe", "-s", self.device_serial, "-m", "1080", "--window-title",
+                 args.window_title])
 
     def action_move(self, params):
         self.executor.submit(self.execute_move, params)
