@@ -30,7 +30,8 @@
 - 第二期工程已经开工，预祝按计划进行
 - 如果有问题，欢迎指导
 ```
-  qq交流群:687853827
+  qq交流群1:687853827 如果滿了，可以加2群
+  qq交流群2:369509470
   
   环境安装详细教程，在doc/说明文档.md里面
   环境安装视频:(bilibili) 欢迎来关注up，点赞，投币，评论，提出你的建议
@@ -73,7 +74,7 @@
      如果cuda是12<br>
      ```
       pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
-      ```
+     ```
   4. onnxruntime-gpu的运行时如果出现下面问题
      ```
      Could not locate zlibwapi.dll. Please make sure it is in your library path!
@@ -87,7 +88,7 @@
      ```
      C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\zlibwapi.dll
      ```
-<br>
+     <br>
 
 ### 三、训练教程
 
@@ -98,12 +99,12 @@
 
 ### 四、在真机和模拟器上的配置
 
-- 修改按键映射，按键映射在这个文件里[argparses.py](argparses.py)<br>
+- 修改按键映射，按键映射在这个文件里[argparses.py](src/common/argparses.py)<br>
 - 修改这里的position，这里是操控位置(X,Y)在屏幕宽高的的百分比，理论讲王者的百分比位置是固定的，一般不用改，对不上时需要更改<br>
   ![position.png](images%2Fposition.png)<br><br>
 
-- 运行[showposition.py](showposition.py)<br>
-- 点击图片的位置，下方会有结果，把里面的值填到[argparses.py](argparses.py)当中就行，下图点击的是移动按钮的位置<br><br>
+- 运行[showposition.py](src/common/other/showposition.py)<br>
+- 点击图片的位置，下方会有结果，把里面的值填到[argparses.py](src/common/argparses.py)当中就行，下图点击的是移动按钮的位置<br><br>
   ![showposition.png](images%2Fshowposition.png)
 
 
