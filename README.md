@@ -100,6 +100,7 @@
 
 - 将下载的onnx模型放在models目录下，直接运行train.py,会自己训练生成模型(wzry_ai.pt)
 - 可以通过顶部的qq群或者网址下载
+- https://stack-traceable.top/archives/wzry-ai-model
 - 生成的模型会放在[src](src)目录下
 
 <br>
