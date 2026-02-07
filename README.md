@@ -30,8 +30,14 @@
 - 第二期工程已经开工，预祝按计划进行
 - 如果有问题，欢迎指导
 ```
-  qq交流群1:687853827 已满，请加2群
-  qq交流群2:369509470
+  文章网址
+  https://stack-traceable.top/
+
+  qq交流群1:687853827 已满，请加2,3群
+  qq交流群2:369509470 
+  qq交流群3:566501058
+
+  
   
   环境安装详细教程，在doc/说明文档.md里面
   环境安装视频:(bilibili) 欢迎来关注up，点赞，投币，评论，提出你的建议
@@ -92,7 +98,8 @@
 
 ### 三、训练教程
 
-- 将qq群文件下载的onnx模型放在models目录下，直接运行train.py,会自己训练生成模型(wzry_ai.pt)
+- 将下载的onnx模型放在models目录下，直接运行train.py,会自己训练生成模型(wzry_ai.pt)
+- 可以通过顶部的qq群或者网址下载
 - 生成的模型会放在[src](src)目录下
 
 <br>
@@ -107,17 +114,6 @@
 - 点击图片的位置，下方会有结果，把里面的值填到[argparses.py](src/common/argparses.py)当中就行，下图点击的是移动按钮的位置<br><br>
   ![showposition.png](images%2Fshowposition.png)
 
-
-### 五、广告
-
-- AI创业做啥好呢？
-- [【腾讯云】特惠活动
-1 元开启 GPU 炼丹之旅
-澎湃算力，即开即用，使用高性能GPU服务HAI，快速部署LLM、AI绘画等应用，助你玩转AIGC！](https://cloud.tencent.com/act/cps/redirect?redirect=36749&cps_key=11812351d85cc069a0941ce4c8d07693)
-
-- [【腾讯云】2核2G4M云服务器新老同享99元/年，续费同价](https://cloud.tencent.com/act/cps/redirect?redirect=5990&cps_key=11812351d85cc069a0941ce4c8d07693&from=console)
-
-- [【阿里云】云服务器 精选特惠，老用户升级最低享6.5折，协助您选择最合适配置方案。](https://www.aliyun.com/product/ecs?userCode=cgwj31jh)
 
 <br>
 
